@@ -41,4 +41,4 @@ const addNumb = (n1, n2) => {
 console.log(`sum is ${addNumb(10, 20)}`);
 //short hand
 const addNumb1 = (n1, n2) => n1 + n2;
-console.log(`sum is ${addNumb(10, 20)}`);
+console.log(`sum is ${addNumb1(10, 20)}`);
