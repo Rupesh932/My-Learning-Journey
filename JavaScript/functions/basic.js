@@ -71,7 +71,7 @@ function dance() {
 }
 function fuck(callback) {
   console.log(
-    "life do fuck almost all the time for all, still its beautiful and need to fucking enjoy, search for love to fuck",
+    "life do fuck almost all the time universally, still its beautiful and need to fucking enjoy, search for love to get fuck as well as  out it",
   );
   callback();
 }
