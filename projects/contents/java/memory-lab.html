@@ -1,0 +1,105 @@
+<div class="java-advanced-lab card">
+    <h2 style="color: #d35400;">Advanced Memory Lab (String Special Case)</h2>
+    
+    <div class="control-panel" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: #fdf2e9; padding: 20px; border-radius: 10px;">
+        <div>
+            <label><strong>Type:</strong></label>
+            <select id="vType" onchange="toggleStringOptions()" style="width: 100%; padding: 8px;">
+                <option value="primitive">Primitive (int/double)</option>
+                <option value="string-literal">String (Literal - "...")</option>
+                <option value="string-object">String (new String())</option>
+                <option value="object">Custom Object (Student/etc)</option>
+            </select>
+        </div>
+        <div>
+            <label><strong>Name:</strong></label>
+            <input type="text" id="vName" placeholder="e.g. s1, s2, x" style="width: 90%; padding: 8px;">
+        </div>
+        <div>
+            <label><strong>Value:</strong></label>
+            <input type="text" id="vVal" placeholder="Value or Content" style="width: 90%; padding: 8px;">
+        </div>
+        <button onclick="processAllocation()" style="grid-column: span 3; background: #e67e22; color: white; border: none; padding: 12px; cursor: pointer; font-weight: bold; border-radius: 5px;">Execute Memory Command</button>
+    </div>
+
+    <div class="memory-container" style="display: flex; gap: 15px; margin-top: 25px; font-family: 'Courier New', Courier, monospace;">
+        <div class="mem-box" style="flex: 1; border: 2px solid #2c3e50; background: #ebedef;">
+            <h4 style="background: #2c3e50; color: white; margin: 0; padding: 8px; text-align: center;">STACK</h4>
+            <div id="stack-v" style="padding: 10px; display: flex; flex-direction: column-reverse; gap: 5px;"></div>
+        </div>
+
+        <div class="mem-box" style="flex: 1.5; border: 2px solid #27ae60; background: #e8f8f5;">
+            <h4 style="background: #27ae60; color: white; margin: 0; padding: 8px; text-align: center;">HEAP (Regular)</h4>
+            <div id="heap-v" style="padding: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+        </div>
+
+        <div class="mem-box" style="flex: 1; border: 2px solid #8e44ad; background: #f4ecf7;">
+            <h4 style="background: #8e44ad; color: white; margin: 0; padding: 8px; text-align: center;">STRING POOL (SCP)</h4>
+            <div id="scp-v" style="padding: 10px; display: flex; flex-direction: column; gap: 5px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let stackMem = {};
+    let heapMem = [];
+    let scpMem = {};
+    let addrGen = 0x1000;
+
+    function processAllocation() {
+        const type = document.getElementById('vType').value;
+        const name = document.getElementById('vName').value.trim();
+        const val = document.getElementById('vVal').value.trim();
+
+        if(!name || !val) return;
+
+        if (type === 'primitive') {
+            stackMem[name] = { type, val };
+        } 
+        else if (type === 'string-literal') {
+            if (!scpMem[val]) {
+                scpMem[val] = "0xS" + (addrGen++).toString(16).toUpperCase();
+            }
+            stackMem[name] = { type: 'String (Ref)', val: scpMem[val] };
+        } 
+        else if (type === 'string-object') {
+            if (!scpMem[val]) {
+                scpMem[val] = "0xS" + (addrGen++).toString(16).toUpperCase();
+            }
+            const heapAddr = "0xH" + (addrGen++).toString(16).toUpperCase();
+            heapMem.push({ addr: heapAddr, content: val, refToSCP: scpMem[val] });
+            stackMem[name] = { type: 'String (Ref)', val: heapAddr };
+        }
+        else {
+            const heapAddr = "0xO" + (addrGen++).toString(16).toUpperCase();
+            heapMem.push({ addr: heapAddr, content: val, type: 'Object' });
+            stackMem[name] = { type: 'Ref', val: heapAddr };
+        }
+        renderAll();
+    }
+
+    function renderAll() {
+        const s = document.getElementById('stack-v');
+        const h = document.getElementById('heap-v');
+        const p = document.getElementById('scp-v');
+        s.innerHTML = ''; h.innerHTML = ''; p.innerHTML = '';
+
+        for (let k in stackMem) {
+            s.innerHTML += `<div style="background:white; padding:5px; border-left:4px solid #2c3e50;"><strong>${k}</strong>: ${stackMem[k].val}</div>`;
+        }
+
+        heapMem.forEach(obj => {
+            h.innerHTML += `<div style="background:white; border:1px solid #27ae60; padding:5px; font-size:11px;">
+                <div style="background:#27ae60; color:white;">${obj.addr}</div>
+                Value: ${obj.content} ${obj.refToSCP ? '<br>Ref: '+obj.refToSCP : ''}
+            </div>`;
+        });
+
+        for (let v in scpMem) {
+            p.innerHTML += `<div style="background:white; border:1px solid #8e44ad; padding:5px; font-size:11px;">
+                <div style="background:#8e44ad; color:white;">${scpMem[v]}</div>
+                "${v}"
+            </div>`;
+        }
+    }
+</script>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLJ — User Guide</title>
+<link rel="stylesheet" href="./web-engine/css/global.css">
+<style>
+:root { --lang-color: #60a5fa; }
+.guide-wrap { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem; }
+.lab-back {
+  display:inline-flex; align-items:center; gap:8px; font-size:.8rem;
+  color:var(--text3); text-decoration:none; padding:6px 12px;
+  border-radius:6px; border:1px solid var(--border); background:var(--bg2);
+  margin-bottom:2rem; transition:all .2s;
+}
+.lab-back:hover { color:var(--text); border-color:var(--border2); }
+.guide-title { font-family:var(--font-sans); font-size:2rem; font-weight:800; margin-bottom:.5rem; }
+.guide-sub   { font-size:.82rem; color:var(--text3); margin-bottom:2rem; }
+
+/* TOC */
+.toc { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.25rem; margin-bottom:2.5rem; }
+.toc-title { font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--text3); margin-bottom:.75rem; }
+.toc-list  { display:flex; flex-direction:column; gap:4px; }
+.toc-item  { font-size:.82rem; color:var(--text2); text-decoration:none; padding:4px 8px; border-radius:4px; transition:all .15s; display:flex; align-items:center; gap:8px; }
+.toc-item:hover { background:var(--bg3); color:var(--text); }
+.toc-num   { color:var(--text3); font-size:.72rem; min-width:20px; }
+
+/* SECTION */
+.guide-section { margin-bottom:3rem; scroll-margin-top:80px; }
+.section-heading {
+  font-family:var(--font-sans); font-size:1.25rem; font-weight:700;
+  margin-bottom:1rem; padding-bottom:.5rem;
+  border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px;
+}
+.section-num { color:var(--text3); font-size:1rem; font-weight:400; }
+
+/* STEP BLOCK */
+.step-block { display:flex; gap:12px; margin-bottom:1rem; }
+.step-num-big {
+  width:28px; height:28px; min-width:28px; border-radius:50%;
+  background:var(--bg3); border:1px solid var(--border2);
+  font-size:.78rem; font-weight:700; display:flex; align-items:center;
+  justify-content:center; color:var(--text2); margin-top:2px;
+}
+.step-body { font-size:.82rem; color:var(--text2); line-height:1.75; flex:1; }
+.step-body strong { color:var(--text); }
+
+/* CODE */
+.code-block {
+  background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+  padding:1rem 1.25rem; margin:10px 0 1rem; font-size:.78rem;
+  line-height:1.9; overflow-x:auto; font-family:var(--font-mono);
+}
+.kw  { color:#a855f7; font-weight:500; }
+.str { color:#2dd4a0; }
+.cm  { color:var(--text3); }
+.hl  { background:rgba(96,165,250,.1); border-left:2px solid #60a5fa; padding:0 8px; display:block; margin:0 -1.25rem; }
+
+/* INFO BOX */
+.info-box {
+  border-radius:8px; padding:.85rem 1rem; margin-bottom:1rem;
+  font-size:.82rem; line-height:1.75; color:var(--text2);
+  border-left:3px solid var(--lang-color);
+  background:color-mix(in srgb, var(--lang-color) 8%, var(--bg2));
+}
+.info-box.teal  { border-color:#2dd4a0; background:color-mix(in srgb,#2dd4a0 8%,var(--bg2)); }
+.info-box.amber { border-color:#f0a030; background:color-mix(in srgb,#f0a030 8%,var(--bg2)); }
+.info-box.green { border-color:#4ade80; background:color-mix(in srgb,#4ade80 8%,var(--bg2)); }
+
+/* FILE TREE */
+.file-tree {
+  background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+  padding:1rem 1.25rem; font-family:var(--font-mono); font-size:.78rem;
+  line-height:2; margin-bottom:1rem; overflow-x:auto;
+}
+.ft-dir  { color:#60a5fa; }
+.ft-file { color:var(--text2); }
+.ft-new  { color:#2dd4a0; }
+.ft-comment { color:var(--text3); }
+
+/* CARD */
+.card { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:1.25rem; margin-bottom:1rem; }
+.card-title { font-size:.9rem; font-weight:600; margin-bottom:.5rem; }
+.card-body  { font-size:.8rem; color:var(--text2); line-height:1.75; }
+
+/* IDEA GRID */
+.idea-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; margin-bottom:1rem; }
+.idea-card {
+  background:var(--bg2); border:1px solid var(--border); border-radius:10px;
+  padding:1rem; border-top:3px solid var(--accent, #60a5fa);
+  transition:all .2s;
+}
+.idea-card:hover { transform:translateY(-2px); border-color:var(--accent,#60a5fa); }
+.idea-title { font-size:.85rem; font-weight:600; margin-bottom:6px; }
+.idea-body  { font-size:.75rem; color:var(--text2); line-height:1.7; }
+.idea-tag   { font-size:.65rem; color:var(--accent,#60a5fa); margin-top:8px; display:inline-block; }
+
+/* TAG */
+.tag { display:inline-flex; align-items:center; padding:2px 8px; border-radius:100px;
+  font-size:.7rem; font-weight:600; font-family:var(--font-mono);
+  border:1px solid currentColor; opacity:.85; margin-right:4px; }
+
+/* DIVIDER */
+hr { border:none; border-top:1px solid var(--border); margin:2.5rem 0; }
+</style>
+</head>
+<body>
+<div class="guide-wrap">
+
+  <a class="lab-back" href="./index.html">← Dashboard</a>
+
+  <div class="guide-title">📖 MLJ User Guide</div>
+  <div class="guide-sub">// content थप्ने, labs बनाउने, notes link गर्ने — complete reference</div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <div class="toc-list">
+      <a class="toc-item" href="#structure"><span class="toc-num">01</span> Folder Structure</a>
+      <a class="toc-item" href="#new-topic"><span class="toc-num">02</span> नयाँ Topic थप्ने</a>
+      <a class="toc-item" href="#new-lang"><span class="toc-num">03</span> नयाँ Language थप्ने</a>
+      <a class="toc-item" href="#new-lab"><span class="toc-num">04</span> Lab बनाउने (lab-template)</a>
+      <a class="toc-item" href="#notes-svg"><span class="toc-num">05</span> Notes र SVG link गर्ने</a>
+      <a class="toc-item" href="#status"><span class="toc-num">06</span> Topic Status update गर्ने</a>
+      <a class="toc-item" href="#new-page"><span class="toc-num">07</span> नयाँ Page/Section थप्ने</a>
+      <a class="toc-item" href="#interactions"><span class="toc-num">08</span> Interactions — सबै options</a>
+      <a class="toc-item" href="#future"><span class="toc-num">09</span> Future Ideas</a>
+      <a class="toc-item" href="#tips"><span class="toc-num">10</span> Pro Tips</a>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       01 — FOLDER STRUCTURE
+  ══════════════════════════════ -->
+  <div class="guide-section" id="structure">
+    <div class="section-heading"><span class="section-num">01</span> Folder Structure</div>
+
+    <div class="file-tree">
+<span class="ft-dir">MLJ/projects/</span>
+├── <span class="ft-file">index.html</span>              <span class="ft-comment">← Dashboard (main entry)</span>
+├── <span class="ft-file">user-guide.html</span>         <span class="ft-comment">← यो file</span>
+│
+├── <span class="ft-dir">web-engine/</span>
+│   ├── <span class="ft-dir">css/</span>
+│   │   └── <span class="ft-file">global.css</span>       <span class="ft-comment">← design system (सबैले use गर्छन्)</span>
+│   └── <span class="ft-dir">js/</span>
+│       ├── <span class="ft-file">dashboard.js</span>     <span class="ft-comment">← data, state, theme, navigation</span>
+│       └── <span class="ft-file">router.js</span>        <span class="ft-comment">← page rendering</span>
+│
+├── <span class="ft-dir">contents/</span>
+│   ├── <span class="ft-file">lab-template.html</span>   <span class="ft-comment">← नयाँ lab बनाउन copy गर्ने</span>
+│   ├── <span class="ft-dir">java/</span>
+│   │   ├── <span class="ft-file">index.json</span>       <span class="ft-comment">← Java topics data</span>
+│   │   └── <span class="ft-file">memory-lab.html</span>  <span class="ft-comment">← OOP Memory Lab</span>
+│   ├── <span class="ft-dir">js/</span>
+│   │   ├── <span class="ft-file">index.json</span>
+│   │   └── <span class="ft-new">*.html</span>             <span class="ft-comment">← future JS labs</span>
+│   ├── <span class="ft-dir">cpp/</span>
+│   │   └── <span class="ft-file">index.json</span>
+│   └── <span class="ft-dir">dsa/</span>
+│       ├── <span class="ft-file">index.json</span>
+│       └── <span class="ft-file">dsa-lab.html</span>     <span class="ft-comment">← DSA Memory Lab</span>
+│
+└── <span class="ft-dir">assets/</span>
+    └── <span class="ft-dir">image/</span>
+        ├── <span class="ft-dir">java/</span>              <span class="ft-comment">← .svg drawio files</span>
+        ├── <span class="ft-dir">js/</span>
+        └── <span class="ft-dir">dsa/</span>
+    </div>
+
+    <div class="info-box teal">
+      <strong>Golden Rule:</strong> <code>dashboard.js</code> र <code>router.js</code> — यी दुइटा छुनु नपरोस् जतिसक्दो। नयाँ content थप्न <code>index.json</code> मात्र edit गर्नुस्। Lab बनाउन <code>lab-template.html</code> copy गर्नुस्।
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       02 — नयाँ TOPIC थप्ने
+  ══════════════════════════════ -->
+  <div class="guide-section" id="new-topic">
+    <div class="section-heading"><span class="section-num">02</span> नयाँ Topic थप्ने</div>
+
+    <div class="info-box">
+      <strong>सबैभन्दा common task।</strong> Generics सिक्यो, topic थप्नु छ — <code>index.json</code> मात्र edit गर्नुस्।
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">1</div>
+      <div class="step-body">
+        <strong>Language को index.json खोल्नुस्</strong><br/>
+        उदाहरण: Java topic → <code>contents/java/index.json</code>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">2</div>
+      <div class="step-body">
+        <strong><code>topics</code> array मा नयाँ object थप्नुस्:</strong>
+      </div>
+    </div>
+
+    <div class="code-block">{
+  <span class="str">"id"</span>:      <span class="str">"j19"</span>,          <span class="cm">// unique ID — j=java, js=javascript, d=dsa</span>
+  <span class="str">"name"</span>:    <span class="str">"Generics"</span>,    <span class="cm">// topic name</span>
+  <span class="str">"status"</span>:  <span class="str">"learning"</span>,   <span class="cm">// "todo" | "learning" | "done"</span>
+  <span class="str">"lab"</span>:     <span class="str">"generics.html"</span>, <span class="cm">// lab file (null if no lab yet)</span>
+  <span class="str">"labSection"</span>: <span class="str">"intro"</span>,    <span class="cm">// tab id in lab (optional)</span>
+  <span class="str">"notes"</span>:   [<span class="str">"../../assets/image/java/generics_notes.svg"</span>],
+  <span class="str">"tags"</span>:    [<span class="str">"generics"</span>, <span class="str">"type-safety"</span>, <span class="str">"bounded"</span>]
+}</div>
+
+    <div class="step-block">
+      <div class="step-num-big">3</div>
+      <div class="step-body">
+        <strong>File save गर्नुस् → Browser refresh गर्नुस्।</strong><br/>
+        Dashboard मा automatically देखिन्छ। Badge count update हुन्छ। Progress tracker मा reflect हुन्छ।
+      </div>
+    </div>
+
+    <div class="info-box amber">
+      <strong>Status values:</strong>
+      <code>"todo"</code> — सुरु गरेको छैन ·
+      <code>"learning"</code> — अहिले सिक्दैछ ·
+      <code>"done"</code> — complete<br/>
+      Dashboard मा dropdown बाट पनि change गर्न मिल्छ — localStorage मा save हुन्छ।
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       03 — नयाँ LANGUAGE थप्ने
+  ══════════════════════════════ -->
+  <div class="guide-section" id="new-lang">
+    <div class="section-heading"><span class="section-num">03</span> नयाँ Language थप्ने (e.g. Python)</div>
+
+    <div class="step-block">
+      <div class="step-num-big">1</div>
+      <div class="step-body">
+        <strong>Folder र JSON बनाउनुस्:</strong>
+        <div class="code-block">mkdir contents/python
+touch contents/python/index.json</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">2</div>
+      <div class="step-body">
+        <strong><code>contents/python/index.json</code> fill गर्नुस्:</strong>
+        <div class="code-block">{
+  <span class="str">"language"</span>: <span class="str">"python"</span>,
+  <span class="str">"color"</span>:    <span class="str">"#3776ab"</span>,
+  <span class="str">"icon"</span>:     <span class="str">"🐍"</span>,
+  <span class="str">"topics"</span>: [
+    { <span class="str">"id"</span>:<span class="str">"py1"</span>, <span class="str">"name"</span>:<span class="str">"Basics"</span>, <span class="str">"status"</span>:<span class="str">"todo"</span>, <span class="str">"lab"</span>:<span class="kw">null</span>, <span class="str">"notes"</span>:[], <span class="str">"tags"</span>:[<span class="str">"python"</span>] }
+  ]
+}</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">3</div>
+      <div class="step-body">
+        <strong><code>web-engine/js/dashboard.js</code> मा <code>langs</code> object मा थप्नुस्:</strong>
+        <div class="code-block">langs: {
+  java: { ... },
+  js:   { ... },
+  <span class="hl">python: { label:'Python', icon:'🐍', color:'#3776ab', jsonPath:'./contents/python/index.json' },</span>
+}</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">4</div>
+      <div class="step-body">
+        <strong><code>index.html</code> Sidebar मा nav button थप्नुस्:</strong>
+        <div class="code-block"><span class="cm">&lt;!-- Languages section भित्र --&gt;</span>
+&lt;button class="nav-item" data-page="python" onclick="MLJ.navigate('python')"&gt;
+  &lt;span class="nav-icon" style="background:rgba(55,118,171,.1);color:#3776ab"&gt;🐍&lt;/span&gt;
+  Python
+  &lt;span class="nav-badge" id="badge-python" ...&gt;—&lt;/span&gt;
+&lt;/button&gt;</div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       04 — LAB बनाउने
+  ══════════════════════════════ -->
+  <div class="guide-section" id="new-lab">
+    <div class="section-heading"><span class="section-num">04</span> नयाँ Lab बनाउने</div>
+
+    <div class="info-box">
+      <strong>lab-template.html</strong> copy गर्नुस् — सबै boilerplate already छ।
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">1</div>
+      <div class="step-body">
+        <strong>Template copy गर्नुस्:</strong>
+        <div class="code-block">cp contents/lab-template.html contents/java/generics.html</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">2</div>
+      <div class="step-body">
+        <strong>File खोलेर यी ४ वटा चीज change गर्नुस्:</strong>
+        <div class="code-block"><span class="cm">&lt;!-- 1. Title --&gt;</span>
+&lt;title&gt;Generics Lab — MLJ&lt;/title&gt;
+
+<span class="cm">&lt;!-- 2. Language color --&gt;</span>
+&lt;body style="--lang-color: #f89820"&gt;
+
+<span class="cm">&lt;!-- 3. Lab header --&gt;</span>
+&lt;div class="lab-title"&gt;☕ Generics&lt;/div&gt;
+&lt;div class="lab-sub"&gt;// java · type safety · MLJ&lt;/div&gt;
+
+<span class="cm">&lt;!-- 4. Tab names --&gt;</span>
+&lt;button class="lab-tab active" onclick="switchTab('intro')"&gt;Intro&lt;/button&gt;
+&lt;button class="lab-tab" onclick="switchTab('bounded')"&gt;Bounded Types&lt;/button&gt;</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">3</div>
+      <div class="step-body">
+        <strong>Steps array fill गर्नुस् (animation को लागि):</strong>
+        <div class="code-block"><span class="kw">const</span> s1Steps = [
+  {
+    info: <span class="str">'&lt;strong&gt;Step 1:&lt;/strong&gt; Generic type T भनेको placeholder हो।'</span>,
+    stack: [{ title: <span class="str">'main() frame'</span>, vars: <span class="str">'list → @Heap#101'</span>, cls: <span class="str">'f-active'</span> }],
+    heap:  [{ title: <span class="str">'ArrayList&lt;String&gt; @101'</span>, vars: <span class="str">'[empty]'</span>, cls: <span class="str">''</span> }],
+    notes: [<span class="str">'T = type parameter'</span>]
+  },
+  <span class="cm">// थप steps...</span>
+];</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">4</div>
+      <div class="step-body">
+        <strong>index.json मा lab link गर्नुस्:</strong>
+        <div class="code-block">{ <span class="str">"id"</span>:<span class="str">"j10"</span>, <span class="str">"name"</span>:<span class="str">"Generics"</span>, <span class="str">"lab"</span>:<span class="str">"generics.html"</span>, <span class="str">"labSection"</span>:<span class="str">"intro"</span> }</div>
+        Dashboard मा <span class="tag" style="color:#f89820">🧪 lab</span> button automatically appear हुन्छ।
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       05 — NOTES र SVG LINK
+  ══════════════════════════════ -->
+  <div class="guide-section" id="notes-svg">
+    <div class="section-heading"><span class="section-num">05</span> Notes र SVG Files Link गर्ने</div>
+
+    <div class="step-block">
+      <div class="step-num-big">1</div>
+      <div class="step-body">
+        <strong>SVG file सही folder मा राख्नुस्:</strong>
+        <div class="code-block"><span class="cm"># Java notes:</span>
+assets/image/java/mynote.svg
+
+<span class="cm"># DSA notes:</span>
+assets/image/dsa/tree_notes.svg</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">2</div>
+      <div class="step-body">
+        <strong>index.json मा notes array मा path थप्नुस्:</strong>
+        <div class="code-block">{
+  <span class="str">"id"</span>: <span class="str">"j5"</span>,
+  <span class="str">"name"</span>: <span class="str">"JVM Architecture"</span>,
+  <span class="str">"notes"</span>: [
+    <span class="str">"../../assets/image/java/jvmarchitecture_drawio.svg"</span>,
+    <span class="str">"../../assets/image/java/my_new_note.svg"</span>
+  ]
+}</div>
+        Notes page मा automatically <span class="tag" style="color:#2dd4a0">📐 open</span> button देखिन्छ।
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">3</div>
+      <div class="step-body">
+        <strong>Lab भित्र पनि link गर्न सकिन्छ:</strong>
+        <div class="code-block"><span class="cm">&lt;!-- lab HTML भित्र --&gt;</span>
+&lt;a class="btn btn-sm" href="../../assets/image/java/mynote.svg" target="_blank"&gt;
+  📐 View Drawing
+&lt;/a&gt;</div>
+      </div>
+    </div>
+
+    <div class="info-box teal">
+      <strong>drawio / excalidraw SVG:</strong> Browser मा directly open हुन्छ — extra software चाहिँदैन। Export as SVG गर्नुस् र <code>assets/image/[lang]/</code> मा राख्नुस्।
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       06 — STATUS UPDATE
+  ══════════════════════════════ -->
+  <div class="guide-section" id="status">
+    <div class="section-heading"><span class="section-num">06</span> Topic Status Update गर्ने</div>
+
+    <div class="card">
+      <div class="card-title">तरिका 1 — Dashboard मा dropdown (recommended)</div>
+      <div class="card-body">
+        Language page मा जानुस् → topic को छेउमा dropdown → status change गर्नुस्।
+        <strong>localStorage मा automatically save हुन्छ</strong> — browser बन्द गरे पनि रहन्छ।
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">तरिका 2 — index.json directly edit गर्नुस्</div>
+      <div class="card-body">
+        <code>contents/java/index.json</code> मा <code>"status": "done"</code> manually change गर्नुस्।
+        Note: localStorage ले JSON लाई override गर्छ — localStorage clear गर्नुस् पहिले यदि conflict भयो भने।
+      </div>
+    </div>
+
+    <div class="info-box amber">
+      <strong>localStorage clear गर्न:</strong> Browser DevTools → Application → Local Storage → <code>mlj-progress</code> delete गर्नुस्। अनि JSON को values reflect हुन्छन्।
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       07 — नयाँ PAGE थप्ने
+  ══════════════════════════════ -->
+  <div class="guide-section" id="new-page">
+    <div class="section-heading"><span class="section-num">07</span> नयाँ Page/Section थप्ने</div>
+
+    <div class="step-block">
+      <div class="step-num-big">1</div>
+      <div class="step-body">
+        <strong><code>web-engine/js/router.js</code> मा render function थप्नुस्:</strong>
+        <div class="code-block">renderMyPage() {
+  <span class="kw">return</span> <span class="str">`
+  &lt;div class="page fade-in"&gt;
+    &lt;div class="page-header"&gt;
+      &lt;div class="page-title"&gt;My New Page&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;!-- content --&gt;
+  &lt;/div&gt;`</span>;
+},</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">2</div>
+      <div class="step-body">
+        <strong>render() function मा case थप्नुस्:</strong>
+        <div class="code-block">render() {
+  <span class="cm">// existing cases...</span>
+  <span class="hl">else if (p === 'mypage') el.innerHTML = this.renderMyPage();</span>
+}</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">3</div>
+      <div class="step-body">
+        <strong><code>index.html</code> sidebar मा nav button थप्नुस्:</strong>
+        <div class="code-block">&lt;button class="nav-item" data-page="mypage" onclick="MLJ.navigate('mypage')"&gt;
+  &lt;span class="nav-icon"&gt;🔖&lt;/span&gt; My Page
+&lt;/button&gt;</div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       08 — ALL INTERACTIONS
+  ══════════════════════════════ -->
+  <div class="guide-section" id="interactions">
+    <div class="section-heading"><span class="section-num">08</span> Interactions — सबै options</div>
+
+    <div class="card">
+      <div class="card-title">Dashboard</div>
+      <div class="card-body">
+        Language card click → त्यो language page मा जान्छ ·
+        Quick Open buttons → labs/projects direct open ·
+        Theme toggle (top right) → dark/light/system
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Language Pages (Java, JS, C++, DSA)</div>
+      <div class="card-body">
+        <span class="tag" style="color:#f89820">🧪 lab</span> → Lab new tab मा open ·
+        <span class="tag" style="color:#2dd4a0">📐 note</span> → SVG new tab मा open ·
+        Status dropdown → todo/learning/done (localStorage save) ·
+        Tags → topic identify गर्न
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Labs (memory-lab, dsa-lab, future labs)</div>
+      <div class="card-body">
+        ← Dashboard button → back to dashboard ·
+        Tab navigation → sections switch ·
+        Next/Prev/Reset buttons → step animations ·
+        Step dots click → directly त्यो step मा जान ·
+        Variable Builder → live Stack/Heap/Pool visualization ·
+        DS operations → push/pop/enqueue/dequeue interactive
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Notes Page</div>
+      <div class="card-body">
+        ↗ Open SVG → browser मा drawing open ·
+        Auto-populated from index.json notes arrays ·
+        नयाँ note थप्न index.json edit मात्र
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Progress Page</div>
+      <div class="card-body">
+        Real-time stats from all index.json files ·
+        Per-language progress bars ·
+        Sushasan-X Roadmap tracker
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       09 — FUTURE IDEAS
+  ══════════════════════════════ -->
+  <div class="guide-section" id="future">
+    <div class="section-heading"><span class="section-num">09</span> Future Ideas</div>
+
+    <div class="idea-grid">
+      <div class="idea-card" style="--accent:#f89820">
+        <div class="idea-title">🔍 Search Bar</div>
+        <div class="idea-body">सबै topics across languages search गर्न मिलोस्। Tags, names, status — filter option।</div>
+        <span class="idea-tag">// dashboard.js मा search() function थप्नुस्</span>
+      </div>
+      <div class="idea-card" style="--accent:#a855f7">
+        <div class="idea-title">🗓 Daily Log</div>
+        <div class="idea-body">आज के सिकियो भनेर daily note राख्न मिलोस्। localStorage मा date-keyed entries।</div>
+        <span class="idea-tag">// contents/log/index.json</span>
+      </div>
+      <div class="idea-card" style="--accent:#2dd4a0">
+        <div class="idea-title">⏱ Study Timer</div>
+        <div class="idea-body">Topic पढ्दा timer start गर्ने। Pomodoro (25 min work, 5 min break)। Per-topic time tracking।</div>
+        <span class="idea-tag">// lab-template मा timer section</span>
+      </div>
+      <div class="idea-card" style="--accent:#ff6b6b">
+        <div class="idea-title">🃏 Flashcards</div>
+        <div class="idea-body">हरेक topic को Q&A flashcards। Spaced repetition — बिर्सिने chances कम। index.json मा cards array।</div>
+        <span class="idea-tag">// contents/java/flashcards.json</span>
+      </div>
+      <div class="idea-card" style="--accent:#60a5fa">
+        <div class="idea-title">📊 Heatmap</div>
+        <div class="idea-body">GitHub-style contribution heatmap — कुन दिन कति topics cover गरियो। Visual motivation।</div>
+        <span class="idea-tag">// progress page मा add</span>
+      </div>
+      <div class="idea-card" style="--accent:#f0a030">
+        <div class="idea-title">🧪 Code Playground</div>
+        <div class="idea-body">Lab भित्र mini code editor। Java/JS snippet run गर्न मिलोस्। Monaco editor embed।</div>
+        <span class="idea-tag">// CDN: monaco-editor</span>
+      </div>
+      <div class="idea-card" style="--accent:#2dd4a0">
+        <div class="idea-title">🔗 Concept Map</div>
+        <div class="idea-body">Topics बीचको relationships visualize गर्ने। "OOP → Constructor → Builder Pattern" chain।</div>
+        <span class="idea-tag">// D3.js force graph</span>
+      </div>
+      <div class="idea-card" style="--accent:#a855f7">
+        <div class="idea-title">📱 PWA Support</div>
+        <div class="idea-body">Offline access। Mobile home screen मा install गर्न मिलोस्। Service Worker + manifest.json।</div>
+        <span class="idea-tag">// manifest.json + sw.js</span>
+      </div>
+      <div class="idea-card" style="--accent:#f89820">
+        <div class="idea-title">🏆 Milestones</div>
+        <div class="idea-body">10 topics done → badge। First lab complete → achievement। Progress gamification।</div>
+        <span class="idea-tag">// dashboard.js checkMilestones()</span>
+      </div>
+    </div>
+
+    <div class="info-box green">
+      <strong>Sushasan-X specific:</strong> Spring Boot project start गरेपछि — dashboard मा "Sushasan-X Dev Log" page थप्नुस् जहाँ Phase progress, API endpoints, DB schema notes राख्न मिलोस्। MLJ नै project notebook बन्न सक्छ।
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════
+       10 — PRO TIPS
+  ══════════════════════════════ -->
+  <div class="guide-section" id="tips">
+    <div class="section-heading"><span class="section-num">10</span> Pro Tips</div>
+
+    <div class="step-block">
+      <div class="step-num-big">💡</div>
+      <div class="step-body">
+        <strong>Live Server use गर्नुस्</strong> — file save गर्नासाथ browser refresh। VS Code Extension: "Live Server"।
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">💡</div>
+      <div class="step-body">
+        <strong>global.css मात्र change गर्नुस् design को लागि</strong> — सबै pages र labs automatically update हुन्छन् किनभने सबैले <code>../../web-engine/css/global.css</code> link गर्छन्।
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">💡</div>
+      <div class="step-body">
+        <strong>ID convention follow गर्नुस्</strong> — java: j1,j2... · js: js1,js2... · cpp: cpp1... · dsa: d1,d2... · python: py1... Unique IDs नभए localStorage conflict हुन्छ।
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">💡</div>
+      <div class="step-body">
+        <strong>Git commit message pattern:</strong>
+        <div class="code-block">git add .
+git commit -m "feat(java): add Generics lab"
+git commit -m "content(dsa): mark LinkedList as done"
+git commit -m "note(java): add generics_notes.svg"</div>
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">💡</div>
+      <div class="step-body">
+        <strong>Lab बनाउँदा mobile test गर्नुस्</strong> — Chrome DevTools मा toggle device toolbar (Ctrl+Shift+M)। <code>@media(max-width:700px)</code> already global.css मा छ।
+      </div>
+    </div>
+
+    <div class="step-block">
+      <div class="step-num-big">💡</div>
+      <div class="step-body">
+        <strong>topic JSON मा labSection</strong> — lab file मा multiple tabs छन् भने specific tab मा directly link गर्न सकिन्छ:
+        <div class="code-block"><span class="str">"lab"</span>: <span class="str">"memory-lab.html"</span>,
+<span class="str">"labSection"</span>: <span class="str">"string-pool"</span>   <span class="cm">// tab id</span></div>
+        Dashboard बाट click गर्दा directly String Pool tab मा open हुन्छ।
+      </div>
+    </div>
+
+    <div class="info-box teal" style="margin-top:2rem">
+      <strong>Finally भाइ 🫡</strong> — यो MLJ system तपाईंको learning को सँगै grow हुन्छ।
+      Topic थप्दै जाऊ, labs बनाउँदै जाऊ, SVGs link गर्दै जाऊ।
+      Sushasan-X launch गर्ने दिन यही dashboard ले तपाईंको पूरा journey document गरेको हुनेछ।
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

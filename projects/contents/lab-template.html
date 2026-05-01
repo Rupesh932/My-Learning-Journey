@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAB_TITLE — MLJ</title>
+<link rel="stylesheet" href="../../web-engine/css/global.css">
+<style>
+/* ── Lab-specific styles ── */
+.lab-wrap { max-width: 960px; margin: 0 auto; padding: var(--sp-xl) var(--sp-lg); }
+
+/* Back bar */
+.lab-back {
+  display: inline-flex; align-items: center; gap: var(--sp-sm);
+  font-size: .8rem; color: var(--text3); text-decoration: none;
+  padding: 6px 12px; border-radius: var(--r-sm);
+  border: 1px solid var(--border); background: var(--bg2);
+  margin-bottom: var(--sp-xl); transition: all .2s;
+}
+.lab-back:hover { color: var(--text); border-color: var(--border2); }
+
+/* Lab header */
+.lab-header { margin-bottom: var(--sp-xl); }
+.lab-title  { font-family: var(--font-sans); font-size: 2rem; font-weight: 800; }
+.lab-sub    { font-size: .82rem; color: var(--text3); margin-top: 6px; font-family: var(--font-mono); }
+.lab-tags   { display: flex; gap: 6px; flex-wrap: wrap; margin-top: var(--sp-md); }
+
+/* Tab nav */
+.lab-tabs {
+  display: flex; gap: 4px; margin-bottom: var(--sp-xl);
+  border-bottom: 1px solid var(--border); flex-wrap: wrap;
+}
+.lab-tab {
+  padding: 8px 16px; font-size: .8rem; color: var(--text3);
+  cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: all .15s; font-family: var(--font-mono);
+  background: none; border-top: none; border-left: none; border-right: none;
+}
+.lab-tab:hover { color: var(--text2); }
+.lab-tab.active { color: var(--text); border-bottom-color: var(--text); font-weight: 500; }
+
+/* Section */
+.lab-section { display: none; }
+.lab-section.active { display: block; animation: fadeIn .25s ease both; }
+
+/* Memory areas */
+.mem-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: var(--sp-lg); }
+@media(max-width:700px){ .mem-grid { grid-template-columns: 1fr; } }
+
+.mem-area {
+  border-radius: var(--r-md); border: 1px solid var(--border);
+  overflow: hidden; min-height: 200px; display: flex; flex-direction: column;
+}
+.mem-header {
+  padding: 8px 12px; font-size: .72rem; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.mem-dot { width: 7px; height: 7px; border-radius: 50%; }
+.mem-body { flex: 1; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
+.stack-body { flex-direction: column-reverse; justify-content: flex-end; }
+
+.mem-frame {
+  border-radius: var(--r-sm); padding: 8px 10px; font-size: .75rem;
+  line-height: 1.7; border: 1px solid var(--border2); background: var(--bg3);
+  animation: fadeIn .25s ease;
+}
+.mem-frame.f-active { border-color: var(--lang-color, #7c6aff); background: color-mix(in srgb, var(--lang-color, #7c6aff) 10%, var(--bg)); }
+.frame-title { font-weight: 600; font-size: .78rem; }
+.frame-vars  { color: var(--text2); font-size: .72rem; margin-top: 3px; }
+.frame-vars .ref { color: var(--lang-color, #7c6aff); }
+
+/* Step controls */
+.step-bar { display: flex; gap: 5px; margin-bottom: var(--sp-md); flex-wrap: wrap; }
+.step-dot {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1px solid var(--border2); font-size: .7rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text3); cursor: pointer; transition: all .15s;
+}
+.step-dot.active { background: var(--lang-color, #7c6aff); border-color: var(--lang-color, #7c6aff); color: #fff; }
+.step-dot.done   { background: color-mix(in srgb, var(--lang-color, #7c6aff) 15%, transparent); color: var(--lang-color, #7c6aff); }
+
+/* Info box */
+.info-box {
+  border-radius: var(--r-sm); padding: .8rem 1rem; margin-bottom: var(--sp-lg);
+  font-size: .82rem; line-height: 1.75; color: var(--text2);
+  border-left: 3px solid var(--lang-color, #7c6aff);
+  background: color-mix(in srgb, var(--lang-color, #7c6aff) 8%, var(--bg2));
+}
+.info-box.note  { border-color: var(--notes-color); background: color-mix(in srgb, var(--notes-color) 8%, var(--bg2)); }
+.info-box.warn  { border-color: var(--amber, #f0a030); background: color-mix(in srgb, #f0a030 8%, var(--bg2)); }
+
+/* Code block */
+.code-block {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r-md);
+  padding: var(--sp-md); margin-bottom: var(--sp-lg); font-size: .78rem;
+  line-height: 1.9; overflow-x: auto; font-family: var(--font-mono);
+}
+.kw  { color: #7c6aff; font-weight: 500; }
+.ty  { color: #60b8ff; }
+.str { color: #2dd4a0; }
+.cm  { color: var(--text3); }
+.num { color: #f0a030; }
+
+/* Concept cards */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 10px; margin-bottom: var(--sp-lg); }
+.concept-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r-md); padding: var(--sp-md); }
+.cc-title { font-size: .85rem; font-weight: 600; margin-bottom: 6px; }
+.cc-body  { font-size: .78rem; color: var(--text2); line-height: 1.7; }
+
+/* Controls */
+.controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: var(--sp-lg); }
+.empty-msg { font-size: .78rem; color: var(--text3); text-align: center; padding: 2rem 0; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+<!--
+  ╔══════════════════════════════════════════════╗
+  ║  MLJ Lab Template                            ║
+  ║  Copy this file → rename → fill in content  ║
+  ║                                              ║
+  ║  Steps:                                      ║
+  ║  1. Change <title> and lab-title             ║
+  ║  2. Set --lang-color in <body style>         ║
+  ║  3. Update lab-tags                          ║
+  ║  4. Add sections (copy .lab-section blocks)  ║
+  ║  5. Add steps/animations as needed           ║
+  ╚══════════════════════════════════════════════╝
+-->
+
+<!-- Set lang color here — overrides default purple -->
+<body style="--lang-color: #f89820">
+
+<div class="lab-wrap">
+
+  <!-- BACK -->
+  <a class="lab-back" href="../../index.html">← Dashboard</a>
+
+  <!-- HEADER -->
+  <div class="lab-header">
+    <div class="lab-title">☕ LAB_TITLE</div>
+    <div class="lab-sub">// java · interactive lab · MLJ</div>
+    <div class="lab-tags">
+      <span class="tag" style="color:var(--lang-color)">TAG_1</span>
+      <span class="tag" style="color:var(--lang-color)">TAG_2</span>
+    </div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="lab-tabs">
+    <button class="lab-tab active" onclick="switchTab('section1')">Section 1</button>
+    <button class="lab-tab"        onclick="switchTab('section2')">Section 2</button>
+    <button class="lab-tab"        onclick="switchTab('section3')">Section 3</button>
+  </div>
+
+  <!-- ═══ SECTION 1 ═══ -->
+  <div id="section1" class="lab-section active">
+
+    <div class="info-box">
+      <strong>Concept:</strong> यहाँ concept को brief explanation राख्नुस्।
+    </div>
+
+    <!-- STEP BAR + MEMORY VIZ -->
+    <div class="step-bar" id="s1-dots"></div>
+    <div class="info-box" id="s1-info">Step 1 को info यहाँ देखिन्छ।</div>
+
+    <div class="mem-grid">
+      <div class="mem-area">
+        <div class="mem-header">
+          <div class="mem-dot" style="background:var(--lang-color)"></div>
+          Stack
+        </div>
+        <div class="mem-body stack-body" id="s1-stack">
+          <div class="empty-msg">— empty —</div>
+        </div>
+      </div>
+      <div class="mem-area">
+        <div class="mem-header">
+          <div class="mem-dot" style="background:#2dd4a0"></div>
+          Heap
+        </div>
+        <div class="mem-body" id="s1-heap">
+          <div class="empty-msg">— empty —</div>
+        </div>
+      </div>
+      <div class="mem-area">
+        <div class="mem-header">
+          <div class="mem-dot" style="background:#f0a030"></div>
+          Notes
+        </div>
+        <div class="mem-body" id="s1-notes">
+          <div class="empty-msg">— add notes here —</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn" id="s1-prev" onclick="s1Prev()">← Prev</button>
+      <button class="btn primary" id="s1-next" onclick="s1Next()">Next →</button>
+      <button class="btn" onclick="s1Reset()">Reset</button>
+    </div>
+
+    <!-- CODE EXAMPLE -->
+    <div class="code-block">
+<span class="cm">// Code example यहाँ राख्नुस्</span>
+<span class="kw">class</span> <span class="ty">Example</span> {
+    <span class="kw">void</span> method() {
+        <span class="cm">// ...</span>
+    }
+}
+    </div>
+
+  </div><!-- /section1 -->
+
+  <!-- ═══ SECTION 2 ═══ -->
+  <div id="section2" class="lab-section">
+    <div class="info-box note">
+      <strong>Section 2:</strong> Concept explanation यहाँ।
+    </div>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="cc-title">Point A</div>
+        <div class="cc-body">Explanation...</div>
+      </div>
+      <div class="concept-card">
+        <div class="cc-title">Point B</div>
+        <div class="cc-body">Explanation...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SECTION 3 ═══ -->
+  <div id="section3" class="lab-section">
+    <div class="info-box warn">
+      <strong>Section 3:</strong> Warning वा special note।
+    </div>
+  </div>
+
+</div><!-- /lab-wrap -->
+
+<script>
+// ── TAB SWITCH ──
+function switchTab(id) {
+  document.querySelectorAll('.lab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.lab-tab').forEach((t,i) => {
+    const ids = ['section1','section2','section3']; // update if more tabs
+    t.classList.toggle('active', ids[i] === id);
+  });
+  document.getElementById(id).classList.add('active');
+}
+
+// ── STEP SYSTEM (copy-paste for each animated section) ──
+// Define your steps here:
+const s1Steps = [
+  {
+    info: '<strong>Step 1:</strong> Description यहाँ।',
+    stack: [],
+    heap: [],
+    notes: ['Note 1']
+  },
+  {
+    info: '<strong>Step 2:</strong> Description यहाँ।',
+    stack: [{ title: 'main() frame', vars: 'x = 5', cls: 'f-active' }],
+    heap: [],
+    notes: ['Note 2']
+  },
+  // थप steps थप्नुस्...
+];
+
+let s1Cur = 0;
+
+function s1Render() {
+  const step = s1Steps[s1Cur];
+
+  // Info
+  document.getElementById('s1-info').innerHTML = step.info;
+
+  // Stack (reversed — bottom of stack shows at bottom)
+  const stackEl = document.getElementById('s1-stack');
+  stackEl.innerHTML = step.stack.length ? '' : '<div class="empty-msg">— empty —</div>';
+  [...step.stack].reverse().forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'mem-frame ' + (f.cls || '');
+    d.innerHTML = `<div class="frame-title">${f.title}</div><div class="frame-vars">${f.vars}</div>`;
+    stackEl.appendChild(d);
+  });
+
+  // Heap
+  const heapEl = document.getElementById('s1-heap');
+  heapEl.innerHTML = step.heap.length ? '' : '<div class="empty-msg">— empty —</div>';
+  step.heap.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'mem-frame ' + (f.cls || '');
+    d.innerHTML = `<div class="frame-title">${f.title}</div><div class="frame-vars">${f.vars}</div>`;
+    heapEl.appendChild(d);
+  });
+
+  // Notes panel
+  const notesEl = document.getElementById('s1-notes');
+  notesEl.innerHTML = step.notes.length ? '' : '<div class="empty-msg">—</div>';
+  step.notes.forEach(n => {
+    const d = document.createElement('div');
+    d.className = 'mem-frame';
+    d.innerHTML = `<div class="frame-vars">${n}</div>`;
+    notesEl.appendChild(d);
+  });
+
+  // Dots
+  const dotsEl = document.getElementById('s1-dots');
+  dotsEl.innerHTML = '';
+  s1Steps.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i===s1Cur?' active':i<s1Cur?' done':'');
+    d.textContent = i + 1;
+    d.onclick = () => { s1Cur = i; s1Render(); };
+    dotsEl.appendChild(d);
+  });
+
+  document.getElementById('s1-prev').disabled = s1Cur === 0;
+  document.getElementById('s1-next').disabled = s1Cur === s1Steps.length - 1;
+}
+
+function s1Next()  { if (s1Cur < s1Steps.length - 1) { s1Cur++; s1Render(); } }
+function s1Prev()  { if (s1Cur > 0) { s1Cur--; s1Render(); } }
+function s1Reset() { s1Cur = 0; s1Render(); }
+
+// ── INIT ──
+s1Render();
+</script>
+</body>
+</html>

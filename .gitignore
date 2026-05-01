@@ -1,0 +1,18 @@
+# Java
+java/.idea/
+java/*.iml
+java/out/
+java/target/
+
+# C++
+*.exe
+*.o
+*.out
+
+# JavaScript (यो थप्नै पर्छ)
+JavaScript/node_modules/
+JavaScript/.env
+
+# System
+.DS_Store
+Thumbs.db

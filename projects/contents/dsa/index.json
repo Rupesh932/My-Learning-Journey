@@ -1,0 +1,12 @@
+{
+  "language": "dsa",
+  "color": "#a855f7",
+  "icon": "🌳",
+  "topics": [
+    { "id": "d1", "name": "Arrays & Strings", "status": "todo", "lab": null, "notes": [], "tags": ["array","string","sliding-window"] },
+    { "id": "d2", "name": "Linked List", "status": "todo", "lab": null, "notes": [], "tags": ["linkedlist","pointer","node"] },
+    { "id": "d3", "name": "Stack & Queue", "status": "todo", "lab": null, "notes": [], "tags": ["stack","queue","deque"] },
+    { "id": "d4", "name": "Trees", "status": "todo", "lab": null, "notes": [], "tags": ["bst","traversal","height"] },
+    { "id": "d5", "name": "Graphs", "status": "todo", "lab": null, "notes": [], "tags": ["bfs","dfs","dijkstra"] }
+  ]
+}

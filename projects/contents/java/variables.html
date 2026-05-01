@@ -1,0 +1,105 @@
+<div class="card">
+    <h2>Java Execution Lab: Method Frames & Memory</h2>
+    
+    <div class="assets-box">
+        <img src="/projects/assets/image/java/variable.excalidraw.svg" alt="Technical Diagram" style="max-width: 100%;">
+    </div>
+
+    <hr>
+
+    <div class="lab-container">
+        <div class="control-panel" style="background: #f1f3f4; padding: 15px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 20px;">
+            <div style="margin-bottom: 15px;">
+                <strong>Execution Actions:</strong>
+                <button onclick="addMethodFrame()" style="background: #1a73e8; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px;">+ Call New Method</button>
+                <button onclick="popFrame()" style="background: #d93025; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 4px;">- Return (Pop Frame)</button>
+            </div>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <select id="vCat">
+                    <option value="primitive">Primitive (Copy Value)</option>
+                    <option value="object">Object (Copy Reference)</option>
+                </select>
+                <input type="text" id="vN" placeholder="Variable Name" style="padding: 5px;">
+                <input type="text" id="vV" placeholder="Value/Data" style="padding: 5px;">
+                <button onclick="allocateInCurrentFrame()" style="background: #1e8e3e; color: white; border: none; padding: 6px 15px; cursor: pointer; border-radius: 4px;">Allocate Memory</button>
+            </div>
+        </div>
+
+        <div class="memory-visualization" style="display: flex; gap: 25px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+            <div id="stack-container" style="flex: 1; border: 3px solid #202124; background: #202124; padding: 10px; min-height: 450px; display: flex; flex-direction: column-reverse; gap: 12px; border-radius: 8px;">
+                <div style="color: #9aa0a6; text-align: center; border-bottom: 1px solid #3c4043; padding-bottom: 5px; font-weight: bold;">STACK (LIFO)</div>
+            </div>
+            <div id="heap-container" style="flex: 1.2; border: 3px solid #f29900; background: #ffffff; padding: 10px; min-height: 450px; border-radius: 8px;">
+                <div style="color: #f29900; text-align: center; border-bottom: 2px solid #f29900; padding-bottom: 5px; font-weight: bold;">HEAP (Dynamic Objects)</div>
+                <div id="heap-objs" style="display: flex; flex-wrap: wrap; gap: 15px; padding-top: 15px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // १. ग्लोबल स्कोपमा फङ्सनहरू राख्ने (Dashboard ले चिन्नका लागि)
+    window.frameCount = 0;
+    window.hAddr = 0x2000;
+
+    window.addMethodFrame = function() {
+        window.frameCount++;
+        const stack = document.getElementById('stack-container');
+        if(!stack) return;
+        const frame = document.createElement('div');
+        frame.id = `frame-${window.frameCount}`;
+        frame.style = "border: 2px solid #81c995; padding: 12px; background: #292a2d; color: #81c995; border-radius: 6px;";
+        
+        const frameName = window.frameCount === 1 ? 'main()' : `method_${window.frameCount}()`;
+        frame.innerHTML = `<div style="color: #81c995; font-weight: bold; border-bottom: 1px solid #3c4043; margin-bottom: 8px;">${frameName} Frame</div><div class="frame-vars"></div>`;
+        stack.appendChild(frame);
+    };
+
+    window.popFrame = function() {
+        if(window.frameCount <= 1) { alert("Main frame cannot be removed!"); return; }
+        document.getElementById(`frame-${window.frameCount}`).remove();
+        window.frameCount--;
+    };
+
+    window.allocateInCurrentFrame = function() {
+        if(window.frameCount === 0) window.addMethodFrame();
+        const cat = document.getElementById('vCat').value;
+        const name = document.getElementById('vN').value || 'var';
+        const val = document.getElementById('vV').value || 'null';
+        const frameVars = document.querySelector(`#frame-${window.frameCount} .frame-vars`);
+
+        if (cat === 'primitive') {
+            const div = document.createElement('div');
+            div.style = "display: flex; justify-content: space-between; border-bottom: 1px solid #3c4043; padding: 4px 0;";
+            div.innerHTML = `<span>${name}</span> <span style="color: #fdd663;">${val}</span>`;
+            frameVars.appendChild(div);
+        } else {
+            const addr = "0x" + (window.hAddr).toString(16).toUpperCase();
+            const sDiv = document.createElement('div');
+            sDiv.style = "display: flex; justify-content: space-between; border-bottom: 1px solid #3c4043; padding: 4px 0; color: #8ab4f8;";
+            sDiv.innerHTML = `<span>${name}</span> <span>${addr}</span>`;
+            frameVars.appendChild(sDiv);
+
+            const hDiv = document.createElement('div');
+            hDiv.style = "border: 1px solid #f29900; padding: 8px; background: #fff7e6; width: 100px; border-radius: 4px;";
+            hDiv.innerHTML = `<strong style="color: #e67e22;">${addr}</strong><br>Data: ${val}`;
+            document.getElementById('heap-objs').appendChild(hDiv);
+            window.hAddr += 0x20;
+        }
+    };
+
+    // २. म्यानुअल रूपमा ल्याब सुरु गर्ने (Dashboard बाट कल गर्नका लागि)
+    window.initLab = function() {
+        window.frameCount = 0;
+        const stack = document.getElementById('stack-container');
+        const heap = document.getElementById('heap-objs');
+        if(stack) stack.innerHTML = '<div style="color: #9aa0a6; text-align: center; border-bottom: 1px solid #3c4043; padding-bottom: 5px; font-weight: bold;">STACK (LIFO)</div>';
+        if(heap) heap.innerHTML = '';
+        window.addMethodFrame();
+    };
+
+    // ३. सिधै फाइल खोल्दा चल्ने
+    if (document.readyState === 'complete') { window.initLab(); } 
+    else { window.addEventListener('load', window.initLab); }
+</script>

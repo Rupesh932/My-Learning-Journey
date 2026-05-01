@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+    <meta charset="UTF-8">
+    <title>Java Static & Final Keyword Notes</title>
+    <style>
+        /* MLJ Theme Colors */
+        :root {
+            --primary: #2563eb;
+            --static-bg: #fee2e2;
+            --static-text: #b91c1c;
+            --final-bg: #dcfce7;
+            --final-text: #166534;
+            --code-bg: #0f172a;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background-color: #f8fafc;
+            color: #1e293b;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container { max-width: 900px; margin: auto; }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid var(--primary);
+        }
+
+        h1, h2, h3 { color: #0f172a; margin-top: 0; }
+        
+        /* Technical Words Styling */
+        .tech {
+            font-family: 'Fira Code', monospace;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            margin: 15px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th { background: #f1f5f9; }
+
+        .lab-box {
+            background: #1e293b;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre;
+            margin-top: 10px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header style="text-align: center; margin-bottom: 30px;">
+        <h1>Java <span class="tech">Static</span> & <span class="tech">Final</span> Guide</h1>
+        <p>प्राविधिक नोट र मेमोरी व्यवस्थापन ल्याब</p>
+    </header>
+
+    <div class="card">
+        <h2>१. <span class="tech">Static Keyword</span> (साझा सदस्य)</h2>
+        <p>
+            जब हामी कुनै सदस्यलाई <span class="tech">Static</span> बनाउँछौँ, त्यो कुनै निश्चित <span class="tech">Object</span> को नभएर पूरै <span class="tech">Class</span> को साझा सम्पत्ति बन्छ।
+        </p>
+        <ul>
+            <li>यसले <span class="tech">Memory</span> को बचत गर्छ किनभने यो <span class="tech">Method Area</span> मा एक पटक मात्र बस्छ।</li>
+            <li>यसलाई <span class="tech">Object</span> नबनाई सिधै <span class="tech">Class Name</span> बाट प्रयोग गर्न सकिन्छ।</li>
+            <li><span class="tech">Static Method</span> ले केवल <span class="tech">Static Data</span> लाई मात्र चलाउन पाउँछ।</li>
+        </ul>
+        <div class="code-block">
+public class Counter {
+    static int count = 0; // Class Level Variable
+    
+    Counter() {
+        count++; // सबै Object ले एउटै 'count' चलाउँछन्
+    }
+}
+        </div>
+    </div>
+
+    <div class="card" style="border-left-color: #10b981;">
+        <h2>२. <span class="tech">Final Keyword</span> (अपरिवर्तनीय)</h2>
+        <p>
+            <span class="tech">Final</span> ले कुनै पनि कुरालाई परिवर्तन हुनबाट रोक्छ र सुरक्षा प्रदान गर्छ।
+        </p>
+        <table>
+            <tr>
+                <th>प्रयोग</th>
+                <th>प्रभाव (Effect)</th>
+            </tr>
+            <tr>
+                <td><span class="tech">Final Variable</span></td>
+                <td>यसको मान फेर्न मिल्दैन (<span class="tech">Constant</span>)।</td>
+            </tr>
+            <tr>
+                <td><span class="tech">Final Method</span></td>
+                <td>यसलाई <span class="tech">Override</span> गर्न मिल्दैन।</td>
+            </tr>
+            <tr>
+                <td><span class="tech">Final Class</span></td>
+                <td>यसलाई <span class="tech">Inherit</span> वा <span class="tech">Extend</span> गर्न मिल्दैन।</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="card" style="border-left-color: #f59e0b;">
+        <h2>३. <span class="tech">Memory Lab Visualizer</span></h2>
+        <p>तलको बटन थिचेर <span class="tech">Memory</span> मा डाटा कसरी बस्छ हेर्नुहोस्:</p>
+        
+        <div class="lab-box" id="labDisplay">
+// Lab सुरु गर्न तलको बटन थिच्नुहोस्...
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <button class="btn" onclick="updateLab('static')">Load Static Area</button>
+            <button class="btn" onclick="updateLab('heap')">Allocate Heap</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateLab(type) {
+        const display = document.getElementById('labDisplay');
+        if(type === 'static') {
+            display.innerHTML = `[Method Area / Static Pool]\n---------------------------\n> Class: Student\n> static String college = "KU" (साझा मान)`;
+            display.style.color = "#ef4444";
+        } else if(type === 'heap') {
+            display.innerHTML += `\n\n[Heap Memory]\n---------------------------\n> Object s1: { id: 101, final regNo: 932 (Locked) }\n> Object s2: { id: 102, final regNo: 935 (Locked) }`;
+            display.style.color = "#10b981";
+        }
+    }
+</script>
+
+</body>
+</html>

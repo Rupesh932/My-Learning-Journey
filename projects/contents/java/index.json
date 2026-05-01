@@ -1,0 +1,159 @@
+{
+  "language": "java",
+  "color": "#f89820",
+  "icon": "☕",
+  "topics": [
+    {
+      "id": "j1",
+      "name": "OOP Fundamentals",
+      "status": "done",
+      "lab": "memory-lab.html",
+      "labSection": "why-oop",
+      "notes": ["../../assets/image/java/oopinjava_drawio.svg"],
+      "tags": ["oop", "class", "object"]
+    },
+    {
+      "id": "j2",
+      "name": "Constructor & Chaining",
+      "status": "done",
+      "lab": "memory-lab.html",
+      "labSection": "constructor",
+      "notes": ["../../assets/image/java/oopinjava_drawio.svg"],
+      "tags": ["constructor", "this", "chaining"]
+    },
+    {
+      "id": "j3",
+      "name": "equals() & hashCode()",
+      "status": "done",
+      "lab": "memory-lab.html",
+      "labSection": "why-oop",
+      "notes": [],
+      "tags": ["object", "contract", "collections"]
+    },
+    {
+      "id": "j4",
+      "name": "Builder Pattern",
+      "status": "done",
+      "lab": null,
+      "notes": [],
+      "tags": ["design-pattern", "builder"]
+    },
+    {
+      "id": "j5",
+      "name": "JVM Architecture",
+      "status": "done",
+      "lab": "memory-lab.html",
+      "labSection": "call-stack",
+      "notes": ["../../assets/image/java/jvmarchitecture_drawio.svg"],
+      "tags": ["jvm", "classloader", "execution-engine"]
+    },
+    {
+      "id": "j6",
+      "name": "Stack & Heap Memory",
+      "status": "done",
+      "lab": "memory-lab.html",
+      "labSection": "object-creation",
+      "notes": ["../../assets/image/java/jvmarchitecture_drawio.svg"],
+      "tags": ["memory", "stack", "heap"]
+    },
+    {
+      "id": "j7",
+      "name": "String Pool",
+      "status": "done",
+      "lab": "memory-lab.html",
+      "labSection": "string-pool",
+      "notes": [],
+      "tags": ["string", "pool", "intern"]
+    },
+    {
+      "id": "j8",
+      "name": "Pass By Value",
+      "status": "done",
+      "lab": "memory-lab.html",
+      "labSection": "pass-by-value",
+      "notes": [],
+      "tags": ["memory", "reference", "primitive"]
+    },
+    {
+      "id": "j9",
+      "name": "Object Header & Padding",
+      "status": "done",
+      "lab": "memory-lab.html",
+      "labSection": "object-header",
+      "notes": ["../../assets/image/java/oopinjava_drawio.svg"],
+      "tags": ["jvm", "memory", "gc"]
+    },
+    {
+      "id": "j10",
+      "name": "Generics",
+      "status": "learning",
+      "lab": null,
+      "notes": [],
+      "tags": ["generics", "type-safety", "bounded"]
+    },
+    {
+      "id": "j11",
+      "name": "Enum",
+      "status": "learning",
+      "lab": null,
+      "notes": [],
+      "tags": ["enum", "constants"]
+    },
+    {
+      "id": "j12",
+      "name": "Collections Framework",
+      "status": "todo",
+      "lab": null,
+      "notes": [],
+      "tags": ["list", "map", "set", "hashmap"]
+    },
+    {
+      "id": "j13",
+      "name": "Exception Handling",
+      "status": "todo",
+      "lab": null,
+      "notes": [],
+      "tags": ["exception", "try-catch", "custom"]
+    },
+    {
+      "id": "j14",
+      "name": "Multithreading",
+      "status": "todo",
+      "lab": null,
+      "notes": [],
+      "tags": ["thread", "pool", "sync"]
+    },
+    {
+      "id": "j15",
+      "name": "Design Patterns",
+      "status": "todo",
+      "lab": null,
+      "notes": [],
+      "tags": ["solid", "patterns", "lld"]
+    },
+    {
+      "id": "j16",
+      "name": "Spring Boot — IoC/DI",
+      "status": "todo",
+      "lab": null,
+      "notes": [],
+      "tags": ["spring", "ioc", "bean", "autowired"]
+    },
+    {
+      "id": "j17",
+      "name": "Spring Security + JWT",
+      "status": "todo",
+      "lab": null,
+      "notes": [],
+      "tags": ["security", "jwt", "auth"]
+    },
+    {
+      "id": "j18",
+      "name": "Spring Data JPA",
+      "status": "todo",
+      "lab": null,
+      "notes": [],
+      "tags": ["jpa", "hibernate", "repository"]
+    }
+  ]
+}

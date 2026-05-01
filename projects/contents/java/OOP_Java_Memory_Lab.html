@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OOP in Java — Memory Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #1a1a24;
+  --bg4: #22222f;
+  --border: #2a2a3a;
+  --border2: #3a3a50;
+  --text: #e8e8f0;
+  --text2: #9090b0;
+  --text3: #5a5a7a;
+  --purple: #7c6aff;
+  --purple2: #5a4acc;
+  --purple-bg: #1a1530;
+  --teal: #2dd4a0;
+  --teal-bg: #0d2420;
+  --amber: #f0a030;
+  --amber-bg: #251a08;
+  --red: #ff5a5a;
+  --red-bg: #200f0f;
+  --green: #4ade80;
+  --stack-color: #7c6aff;
+  --heap-color: #2dd4a0;
+  --meta-color: #f0a030;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* grid bg */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(124,106,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,106,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* HEADER */
+header {
+  position: relative;
+  z-index: 10;
+  padding: 2rem 2rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.logo {
+  font-family: var(--sans);
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.logo span { color: var(--purple); }
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.nav-tab {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text3);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: all .2s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--text2); border-color: var(--border); }
+.nav-tab.active { color: var(--purple); border-color: var(--purple2); background: var(--purple-bg); }
+
+/* MAIN LAYOUT */
+main {
+  position: relative;
+  z-index: 10;
+  padding: 1.5rem 2rem;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* SECTION TITLE */
+.section-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 1rem;
+}
+
+/* MEMORY VISUALIZATION */
+.mem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .mem-grid { grid-template-columns: 1fr; }
+}
+
+.mem-area {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mem-header {
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mem-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.stack-area .mem-header { background: rgba(124,106,255,.08); }
+.stack-area .mem-dot { background: var(--stack-color); }
+.heap-area .mem-header { background: rgba(45,212,160,.08); }
+.heap-area .mem-dot { background: var(--heap-color); }
+.meta-area .mem-header { background: rgba(240,160,48,.08); }
+.meta-area .mem-dot { background: var(--meta-color); }
+
+.mem-body {
+  flex: 1;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stack-body { flex-direction: column-reverse; justify-content: flex-end; }
+
+.mem-frame {
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.7;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  transition: all .35s ease;
+  animation: slideIn .3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-12px); }
+}
+
+.mem-frame.active {
+  border-color: var(--purple);
+  background: var(--purple-bg);
+}
+.mem-frame.heap-active {
+  border-color: var(--teal);
+  background: var(--teal-bg);
+}
+.mem-frame.meta-active {
+  border-color: var(--amber);
+  background: var(--amber-bg);
+}
+
+.frame-title { font-weight: 600; color: var(--text); font-size: 11px; }
+.frame-vars { color: var(--text2); font-size: 10px; margin-top: 3px; }
+.frame-vars span { color: var(--teal); }
+.frame-vars .ref { color: var(--purple); }
+
+.empty-msg { font-size: 11px; color: var(--text3); text-align: center; padding: 2rem 0; }
+
+/* CODE BLOCK */
+.code-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 12px;
+  line-height: 1.9;
+  overflow-x: auto;
+}
+
+.kw { color: var(--purple); font-weight: 500; }
+.ty { color: #60b8ff; }
+.str { color: var(--teal); }
+.cm { color: var(--text3); }
+.hl-line { background: rgba(124,106,255,.12); border-left: 2px solid var(--purple); margin: 0 -1.25rem; padding: 0 1.25rem; display: block; }
+.num { color: var(--amber); }
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.btn {
+  padding: 8px 18px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: .03em;
+}
+.btn:hover { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+.btn.primary { background: var(--purple-bg); border-color: var(--purple2); color: var(--purple); }
+.btn.primary:hover { background: var(--purple2); color: #fff; }
+.btn.danger { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+
+/* STEP INDICATOR */
+.step-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.step-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border2);
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all .2s;
+}
+.step-dot:hover { border-color: var(--purple2); color: var(--purple); }
+.step-dot.active { background: var(--purple); border-color: var(--purple); color: #fff; }
+.step-dot.done { background: var(--teal-bg); border-color: var(--teal); color: var(--teal); }
+
+/* INFO BOX */
+.info-box {
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  font-size: 12px;
+  line-height: 1.75;
+  color: var(--text2);
+  border-left: 3px solid var(--purple);
+  background: var(--purple-bg);
+  min-height: 52px;
+  transition: all .3s;
+}
+.info-box.teal { border-color: var(--teal); background: var(--teal-bg); }
+.info-box.amber { border-color: var(--amber); background: var(--amber-bg); }
+.info-box.red { border-color: var(--red); background: var(--red-bg); }
+.info-box strong { color: var(--text); }
+
+/* CONCEPT GRID */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.concept-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  transition: border-color .2s;
+  cursor: default;
+}
+.concept-card:hover { border-color: var(--border2); }
+
+.concept-card .cc-title {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag {
+  font-size: 9px;
+  font-family: var(--mono);
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: .05em;
+}
+.tag-p { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple2); }
+.tag-t { background: var(--teal-bg); color: var(--teal); border: 1px solid #1a5040; }
+.tag-a { background: var(--amber-bg); color: var(--amber); border: 1px solid #503010; }
+.tag-r { background: var(--red-bg); color: var(--red); border: 1px solid #501010; }
+
+.concept-card .cc-body {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.75;
+}
+
+/* STRING POOL VIZ */
+.pool-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.pool-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.pool-box h3 {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 12px;
+}
+
+.pool-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  margin-bottom: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+}
+.pool-item .addr { color: var(--purple); min-width: 60px; }
+.pool-item .val { color: var(--teal); }
+
+/* OBJECT HEADER VIZ */
+.obj-header-viz {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 1rem;
+}
+
+.oh-box {
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+/* PADDING CALC */
+.pad-calc {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.pad-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+}
+.pad-row:last-child { border-bottom: none; }
+
+/* PASS BY VALUE VIZ */
+.pbv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* SCROLL */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* CONSTRUCTOR CHAIN VIZ */
+.chain-viz {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.chain-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  transition: all .3s;
+}
+.chain-step.active { border-color: var(--purple); background: var(--purple-bg); }
+.chain-step .cs-arrow { color: var(--purple); font-size: 14px; }
+.chain-step .cs-text { color: var(--text2); flex: 1; }
+.chain-step.active .cs-text { color: var(--text); }
+
+/* SECTION DIVIDER */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5rem 0;
+}
+
+/* BADGE */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+  main { padding: 1rem; }
+  header { padding: 1rem; }
+  .pool-grid, .pbv-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">OOP<span>.</span>Java <span style="color:var(--text3);font-weight:400;font-size:.9rem;">// Memory Lab</span></div>
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="switchPanel('why-oop')">Why OOP?</div>
+    <div class="nav-tab" onclick="switchPanel('object-creation')">Object Creation</div>
+    <div class="nav-tab" onclick="switchPanel('constructor')">Constructor</div>
+    <div class="nav-tab" onclick="switchPanel('object-header')">Object Header</div>
+    <div class="nav-tab" onclick="switchPanel('string-pool')">String Pool</div>
+    <div class="nav-tab" onclick="switchPanel('pass-by-value')">Pass by Value</div>
+    <div class="nav-tab" onclick="switchPanel('call-stack')">Call Stack</div>
+  </div>
+</header>
+
+<main>
+
+<!-- ==================== WHY OOP ==================== -->
+<div id="why-oop" class="panel active">
+  <div class="section-label">Chapter 01 — Why OOP was needed</div>
+
+  <div class="info-box amber">
+    <strong>Problem:</strong> Data हरू Stack र Heap मा scattered थिए। Addresses मात्र थिए — कुन data कुन person को थाहा थिएन। कोही पनि access र modify गर्न सक्थ्यो।
+  </div>
+
+  <div class="code-block">
+<span class="cm">// Before OOP — scattered, no authority</span>
+<span class="ty">String</span> name = <span class="str">"rupesh"</span>;      <span class="cm">// 0xc9 — Stack/Heap</span>
+<span class="ty">int</span>    age  = <span class="num">33</span>;            <span class="cm">// 0xbc — Stack</span>
+<span class="ty">String</span> addr = <span class="str">"nepal"</span>;      <span class="cm">// 0xaa — Heap</span>
+<span class="ty">String</span> phone= <span class="str">"xxxx-xxxx"</span>; <span class="cm">// 0x1a — Heap</span>
+
+<span class="cm">// ❌ No single unit. No authority over data.</span>
+<span class="cm">// ❌ Anyone can: name = "bhushan"; — mess up!</span>
+  </div>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-title"><span class="tag tag-r">Problem 1</span> Scattered Memory</div>
+      <div class="cc-body">एउटै person को data (name, age, address, phone) Stack र Heap मा अलग-अलग addresses मा थियो। Single unit को रूपमा treat गर्न सकिँदैनथ्यो।</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-title"><span class="tag tag-r">Problem 2</span> No Authority</div>
+      <div class="cc-body">Data independent थियो — कुनै पनि code ले access र modify गर्न सक्थ्यो। <code>name = "bhushan"</code> जहाँबाट पनि गर्न मिल्थ्यो। Ownership थिएन।</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-title"><span class="tag tag-r">Problem 3</span> Manual Arguments</div>
+      <div class="cc-body">Method मा data pass गर्न: <code>print(name, age, addr, phone)</code> — सबै manually pass गर्नुपर्थ्यो। Error-prone र tedious।</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-title"><span class="tag tag-t">Solution</span> Class + Object</div>
+      <div class="cc-body">Real-world entities लाई represent गर्न <strong>Class</strong> (blueprint) र <strong>Object</strong> (instance) concept आयो। Related data एउटै unit मा, authority सहित।</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="cm">// After OOP — single unit, authority, encapsulated</span>
+<span class="kw">class</span> <span class="ty">Person</span> {
+    <span class="ty">String</span> name;
+    <span class="ty">int</span>    age;
+    <span class="ty">String</span> address;
+    <span class="ty">String</span> phoneNo;
+}
+
+<span class="ty">Person</span> rupesh = <span class="kw">new</span> <span class="ty">Person</span>();  <span class="cm">// ✓ One object — one unit</span>
+<span class="ty">Person</span> bhushan= <span class="kw">new</span> <span class="ty">Person</span>(); <span class="cm">// ✓ Separate object — no conflict</span>
+  </div>
+
+  <div class="info-box teal">
+    <strong>OOP को core idea:</strong> Real world मा student, person, employee जस्ता entities छन् — तिनलाई program मा represent गर्न <strong>Class</strong> (abstract blueprint) र <strong>Object</strong> (actual instance) concept आयो। Class = idea, Object = reality।
+  </div>
+</div>
+
+<!-- ==================== OBJECT CREATION ==================== -->
+<div id="object-creation" class="panel">
+  <div class="section-label">Chapter 02 — Object Creation in Memory</div>
+
+  <div class="step-bar" id="oc-steps"></div>
+  <div class="info-box" id="oc-info"></div>
+
+  <div class="mem-grid">
+    <div class="mem-area stack-area">
+      <div class="mem-header"><div class="mem-dot"></div>Stack Memory <span class="tag tag-p" style="margin-left:auto">per thread</span></div>
+      <div class="mem-body stack-body" id="oc-stack">
+        <div class="empty-msg">— empty —</div>
+      </div>
+    </div>
+    <div class="mem-area heap-area">
+      <div class="mem-header"><div class="mem-dot"></div>Heap Memory <span class="tag tag-t" style="margin-left:auto">shared</span></div>
+      <div class="mem-body" id="oc-heap">
+        <div class="empty-msg">— empty —</div>
+      </div>
+    </div>
+    <div class="mem-area meta-area">
+      <div class="mem-header"><div class="mem-dot"></div>Metaspace <span class="tag tag-a" style="margin-left:auto">class meta</span></div>
+      <div class="mem-body" id="oc-meta">
+        <div class="empty-msg">loading...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="ocPrev()" id="oc-prev">← Prev</button>
+    <button class="btn primary" onclick="ocNext()" id="oc-next">Next →</button>
+    <button class="btn danger" onclick="ocReset()">Reset</button>
+  </div>
+
+  <div class="code-block" id="oc-code">
+<span class="kw">class</span> <span class="ty">Student</span> {
+    <span class="ty">int</span>    id;
+    <span class="ty">String</span> name;
+    <span class="ty">int</span>    age;
+    <span class="ty">String</span> institute;
+    <span class="ty">String</span> address;
+}
+
+<span class="kw">public static void</span> main(<span class="ty">String</span>[] args) {
+    <span class="ty">Student</span> s1;           <span class="cm">// Step 1</span>
+    <span class="ty">Student</span> s2;           <span class="cm">// Step 2</span>
+    s1 = <span class="kw">new</span> <span class="ty">Student</span>(); <span class="cm">// Step 3</span>
+    s2 = <span class="kw">new</span> <span class="ty">Student</span>(); <span class="cm">// Step 4</span>
+}
+  </div>
+</div>
+
+<!-- ==================== CONSTRUCTOR ==================== -->
+<div id="constructor" class="panel">
+  <div class="section-label">Chapter 03 — Constructor & Object Initialization</div>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-title">Constructor Rules</div>
+      <div class="cc-body">
+        1. Class नाम जस्तै नाम हुनुपर्छ<br/>
+        2. Return type हुँदैन — void पनि होइन<br/>
+        3. <code>new</code> keyword ले automatically call गर्छ<br/>
+        4. Object initialize गर्न use हुन्छ<br/>
+        5. Overload गर्न मिल्छ
+      </div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-title">Constructor Types</div>
+      <div class="cc-body">
+        <span class="tag tag-p">Default</span> Java ले provide गर्छ — no args<br/><br/>
+        <span class="tag tag-t">No-args</span> Developer ले लेख्छ — no args<br/><br/>
+        <span class="tag tag-a">Parameterized</span> Args सहित — direct initialization
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box amber">
+    <strong>new vs constructor:</strong> <code>new</code> = घर बनाउने 🏠 (Heap मा memory allocate) | Constructor = घर बनाउँदा चल्ने process | <code>this()/super()</code> = त्यो process भित्र अर्को process call
+  </div>
+
+  <div class="section-label" style="margin-top:1.5rem">Constructor Chaining — Teacher1 style (Best Practice)</div>
+
+  <div class="controls" style="margin-bottom:1rem">
+    <button class="btn primary" onclick="chainNext()" id="chain-next">Simulate chaining →</button>
+    <button class="btn danger" onclick="chainReset()">Reset</button>
+  </div>
+
+  <div class="chain-viz" id="chain-viz"></div>
+
+  <div class="info-box teal" id="chain-info" style="margin-top:1rem">
+    "Next" थिचेर देख्नुस् कसरी <code>Teacher(tid)</code> → <code>Teacher(tid,name)</code> → ... → actual assignment सम्म chain हुन्छ।
+  </div>
+
+  <hr class="divider">
+
+  <div class="code-block">
+<span class="cm">// Best practice — bottom-up chaining (Teacher1 style)</span>
+<span class="kw">class</span> <span class="ty">Teacher</span> {
+    <span class="ty">int</span>     tid;
+    <span class="ty">String</span>  name;
+    <span class="ty">String</span>  dept;
+    <span class="ty">int</span>     salary;
+
+    <span class="ty">Teacher</span>(<span class="ty">int</span> tid) {
+        <span class="kw">this</span>(tid, <span class="str">"UNKNOWN"</span>); <span class="cm">// ← delegates up</span>
+    }
+    <span class="ty">Teacher</span>(<span class="ty">int</span> tid, <span class="ty">String</span> name) {
+        <span class="kw">this</span>(tid, name, <span class="str">"UNKNOWN"</span>);
+    }
+    <span class="ty">Teacher</span>(<span class="ty">int</span> tid, <span class="ty">String</span> name, <span class="ty">String</span> dept) {
+        <span class="kw">this</span>(tid, name, dept, <span class="num">0</span>);
+    }
+    <span class="ty">Teacher</span>(<span class="ty">int</span> tid, <span class="ty">String</span> name, <span class="ty">String</span> dept, <span class="ty">int</span> salary) {
+        <span class="kw">this</span>.tid    = tid;    <span class="cm">// ← actual assignment एकै ठाउँमा</span>
+        <span class="kw">this</span>.name   = name;
+        <span class="kw">this</span>.dept   = dept;
+        <span class="kw">this</span>.salary = salary;
+    }
+}
+  </div>
+</div>
+
+<!-- ==================== OBJECT HEADER ==================== -->
+<div id="object-header" class="panel">
+  <div class="section-label">Chapter 04 — Object Header & Memory Size</div>
+
+  <div class="info-box">
+    Heap मा प्रत्येक object को सुरुमा <strong>Object Header</strong> हुन्छ। यो JVM ले use गर्ने metadata हो — developer ले directly access गर्दैन।
+  </div>
+
+  <div class="obj-header-viz">
+    <div class="oh-box" style="background:var(--purple-bg);border:1px solid var(--purple2)">
+      <div style="color:var(--purple);font-weight:600;margin-bottom:6px">Mark Word</div>
+      <div style="color:var(--text2);font-size:10px">
+        Hashcode<br/>
+        GC Age (0-15)<br/>
+        Lock state<br/>
+        GC mark bit
+      </div>
+      <div style="margin-top:8px;color:var(--text3);font-size:10px">32-bit: 4B / 64-bit: 8B</div>
+    </div>
+    <div class="oh-box" style="background:var(--amber-bg);border:1px solid #503010">
+      <div style="color:var(--amber);font-weight:600;margin-bottom:6px">Class Pointer</div>
+      <div style="color:var(--text2);font-size:10px">
+        Metaspace को<br/>
+        class metadata<br/>
+        को pointer<br/>
+        (vtable यहाँबाट)
+      </div>
+      <div style="margin-top:8px;color:var(--text3);font-size:10px">4B (compressed) / 8B</div>
+    </div>
+    <div class="oh-box" style="background:var(--teal-bg);border:1px solid #1a5040">
+      <div style="color:var(--teal);font-weight:600;margin-bottom:6px">Instance Data</div>
+      <div style="color:var(--text2);font-size:10px">
+        int: 4B<br/>
+        long: 8B<br/>
+        String/ref: 4B<br/>
+        boolean: 1B
+      </div>
+      <div style="margin-top:8px;color:var(--text3);font-size:10px">actual fields</div>
+    </div>
+  </div>
+
+  <div class="section-label">Padding Calculator — 8 byte alignment rule</div>
+
+  <div class="pad-calc">
+    <div class="code-block" style="margin-bottom:1rem">
+<span class="kw">class</span> <span class="ty">Student</span> {
+    <span class="ty">int</span>    id;        <span class="cm">// 4 bytes</span>
+    <span class="ty">String</span> name;     <span class="cm">// 4 bytes (reference)</span>
+    <span class="ty">int</span>    age;       <span class="cm">// 4 bytes</span>
+    <span class="ty">String</span> institute; <span class="cm">// 4 bytes (reference)</span>
+    <span class="ty">String</span> address;  <span class="cm">// 4 bytes (reference)</span>
+}
+    </div>
+
+    <div class="pad-row">
+      <span style="color:var(--text2)">Object Header (Mark Word + Class Pointer)</span>
+      <span style="color:var(--purple)">16 bytes</span>
+    </div>
+    <div class="pad-row">
+      <span style="color:var(--text2)">Instance data (5 fields × 4 bytes)</span>
+      <span style="color:var(--teal)">20 bytes</span>
+    </div>
+    <div class="pad-row">
+      <span style="color:var(--text2)">Total before padding</span>
+      <span style="color:var(--amber)">36 bytes</span>
+    </div>
+    <div class="pad-row">
+      <span style="color:var(--text2)">Next multiple of 8</span>
+      <span style="color:var(--amber)">40 bytes</span>
+    </div>
+    <div class="pad-row" style="background:rgba(45,212,160,.05)">
+      <span style="color:var(--text);font-weight:600">Padding added</span>
+      <span style="color:var(--teal);font-weight:600">4 bytes</span>
+    </div>
+    <div class="pad-row" style="background:rgba(124,106,255,.05)">
+      <span style="color:var(--text);font-weight:600">Final object size</span>
+      <span style="color:var(--purple);font-weight:600">40 bytes</span>
+    </div>
+  </div>
+
+  <div class="info-box teal">
+    <strong>किन 8 को multiple?</strong> CPU ले memory बाट data 8 bytes को chunk मा पढ्छ। Object 8-byte aligned भयो भने एकै read मा data मिल्छ। नभए एउटै field दुइटा cache line मा पर्छ — slow।
+  </div>
+
+  <div class="section-label" style="margin-top:1.5rem">Lock States (Mark Word)</div>
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-title"><span class="tag tag-t">Biased Lock</span></div>
+      <div class="cc-body">एउटै thread ले repeatedly access गर्छ। Fast — कुनै actual locking mechanism छैन।</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-title"><span class="tag tag-a">Lightweight Lock</span></div>
+      <div class="cc-body">दुइटा threads compete गर्छन् — CAS (Compare and Swap) use हुन्छ। Stack मा lock record राखिन्छ।</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-title"><span class="tag tag-r">Heavyweight Lock</span></div>
+      <div class="cc-body">High contention — OS level mutex। Thread block हुन्छ। Expensive।</div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== STRING POOL ==================== -->
+<div id="string-pool" class="panel">
+  <div class="section-label">Chapter 05 — String Pool & Heap</div>
+
+  <div class="info-box">
+    String Pool भनेको <strong>Heap भित्रको sub-region</strong> हो। String literals (<code>"rupesh"</code>) यहाँ जान्छन् — interned। <code>new String()</code> ले Heap मा छुट्टै object बनाउँछ।
+  </div>
+
+  <div class="pool-grid">
+    <div class="pool-box">
+      <h3>String Pool (Heap sub-region)</h3>
+      <div class="pool-item"><span class="addr">@SP001</span><span class="val">"rupesh"</span></div>
+      <div class="pool-item"><span class="addr">@SP002</span><span class="val">"nepal"</span></div>
+      <div class="pool-item"><span class="addr">@SP003</span><span class="val">"Name: "</span></div>
+      <div class="pool-item"><span class="addr">@SP004</span><span class="val">"xxxx-xxxx"</span></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px">Interned strings — shared, reused</div>
+    </div>
+    <div class="pool-box">
+      <h3>Normal Heap</h3>
+      <div class="pool-item"><span class="addr">@H101</span><span class="val">new String("rupesh")</span></div>
+      <div class="pool-item"><span class="addr">@H102</span><span class="val">"Name: rupesh" (concat result)</span></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px">Runtime created — not interned</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="cm">// literal → String Pool (@SP001)</span>
+<span class="ty">String</span> a = <span class="str">"rupesh"</span>;         <span class="cm">// a → @SP001</span>
+<span class="ty">String</span> b = <span class="str">"rupesh"</span>;         <span class="cm">// b → @SP001 (same! reused)</span>
+
+<span class="cm">// new String() → Normal Heap (@H101)</span>
+<span class="ty">String</span> c = <span class="kw">new</span> <span class="ty">String</span>(<span class="str">"rupesh"</span>); <span class="cm">// c → @H101 (new object)</span>
+                                       <span class="cm">// + "rupesh" also in Pool @SP001</span>
+
+a == b       <span class="cm">// true  — same Pool address</span>
+a == c       <span class="cm">// false — different addresses</span>
+a.equals(c)  <span class="cm">// true  — same content</span>
+<span class="cm">// ↑ त्यसैले String compare मा == होइन .equals() use गर्नुस्!</span>
+
+<span class="cm">// Concatenation</span>
+<span class="ty">String</span> result = <span class="str">"Name: "</span> + <span class="str">"rupesh"</span>;
+<span class="cm">// → "Name: " Pool मा, "rupesh" Pool मा</span>
+<span class="cm">// → Java 9+: invokedynamic + StringConcatFactory</span>
+<span class="cm">// → result "Name: rupesh" → Normal Heap (@H102)</span>
+<span class="cm">// → return गर्दा @H102 को address return हुन्छ, value होइन</span>
+  </div>
+
+  <div class="info-box amber">
+    <strong>Loop मा + operator:</strong> प्रत्येक concatenation मा नयाँ Heap object बन्छ — expensive! Loop भित्र <code>StringBuilder</code> use गर्नुस्।
+  </div>
+</div>
+
+<!-- ==================== PASS BY VALUE ==================== -->
+<div id="pass-by-value" class="panel">
+  <div class="section-label">Chapter 06 — Pass by Value</div>
+
+  <div class="info-box amber">
+    <strong>Java मा Call By Reference छैन।</strong> सधैं Pass By Value। Primitives को लागि value copy हुन्छ। Objects को लागि reference copy हुन्छ — original object modify हुन्छ तर यो "reference copy" हो, direct memory passing होइन।
+  </div>
+
+  <div class="step-bar" id="pbv-steps"></div>
+  <div class="info-box" id="pbv-info"></div>
+
+  <div class="mem-grid">
+    <div class="mem-area stack-area">
+      <div class="mem-header"><div class="mem-dot"></div>Stack</div>
+      <div class="mem-body stack-body" id="pbv-stack"><div class="empty-msg">—</div></div>
+    </div>
+    <div class="mem-area heap-area">
+      <div class="mem-header"><div class="mem-dot"></div>Heap</div>
+      <div class="mem-body" id="pbv-heap"><div class="empty-msg">—</div></div>
+    </div>
+    <div class="mem-area meta-area" style="min-height:180px">
+      <div class="mem-header"><div class="mem-dot"></div>Key Insight</div>
+      <div class="mem-body" id="pbv-insight"><div class="empty-msg">—</div></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="pbvPrev()" id="pbv-prev">← Prev</button>
+    <button class="btn primary" onclick="pbvNext()" id="pbv-next">Next →</button>
+    <button class="btn danger" onclick="pbvReset()">Reset</button>
+  </div>
+
+  <div class="code-block">
+<span class="cm">// Primitive — value copy, original unchanged</span>
+<span class="kw">void</span> addTen(<span class="ty">int</span> x, <span class="ty">int</span> y) {
+    x += <span class="num">10</span>; y += <span class="num">10</span>; <span class="cm">// local copy बदलिन्छ, main को x,y होइन</span>
+}
+main: x=5, y=6 → addTen(5,6) → main: x=5, y=6 <span class="cm">// unchanged</span>
+
+<span class="cm">// Object — reference copy, original object modified</span>
+<span class="kw">void</span> addTen(<span class="ty">Random</span> r) {
+    r.x += <span class="num">10</span>; r.y += <span class="num">10</span>; <span class="cm">// Heap object modify हुन्छ</span>
+}
+main: r1.x=5 → addTen(r1) → main: r1.x=15 <span class="cm">// changed!</span>
+<span class="cm">// किन? r1 को reference copy (not r1 itself) pass भयो</span>
+<span class="cm">// r र r1 दुवैले same Heap object (@1010) point गर्छन्</span>
+  </div>
+</div>
+
+<!-- ==================== CALL STACK ==================== -->
+<div id="call-stack" class="panel">
+  <div class="section-label">Chapter 07 — Call Stack & Stack Trace</div>
+
+  <div class="step-bar" id="cs-steps"></div>
+  <div class="info-box" id="cs-info"></div>
+
+  <div class="mem-grid">
+    <div class="mem-area stack-area">
+      <div class="mem-header"><div class="mem-dot"></div>Call Stack <span class="tag tag-p" style="margin-left:auto">LIFO</span></div>
+      <div class="mem-body stack-body" id="cs-stack"><div class="empty-msg">—</div></div>
+    </div>
+    <div class="mem-area heap-area">
+      <div class="mem-header"><div class="mem-dot"></div>Heap</div>
+      <div class="mem-body" id="cs-heap"><div class="empty-msg">—</div></div>
+    </div>
+    <div class="mem-area meta-area">
+      <div class="mem-header"><div class="mem-dot"></div>Stack Trace</div>
+      <div class="mem-body" id="cs-trace" style="font-size:10px;line-height:1.8;color:var(--text3)">
+        <div class="empty-msg">exception आउँदा देखिन्छ</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" onclick="csPrev()" id="cs-prev">← Prev</button>
+    <button class="btn primary" onclick="csNext()" id="cs-next">Next →</button>
+    <button class="btn danger" onclick="csReset()">Reset</button>
+  </div>
+
+  <div class="code-block">
+<span class="kw">public static void</span> main(<span class="ty">String</span>[] args) {
+    <span class="ty">Student</span> s1 = <span class="kw">new</span> <span class="ty">Student</span>(<span class="str">"Rupesh"</span>, <span class="num">25</span>);
+    printInfo(s1);
+}
+<span class="kw">static void</span> printInfo(<span class="ty">Student</span> s) {
+    <span class="ty">String</span> msg = formatName(s.name);
+    System.out.println(msg); <span class="cm">// → PrintStream → StreamEncoder</span>
+}
+<span class="kw">static</span> <span class="ty">String</span> formatName(<span class="ty">String</span> name) {
+    <span class="kw">return</span> <span class="str">"Name: "</span> + name; <span class="cm">// new String in Heap</span>
+}
+  </div>
+</div>
+
+</main>
+
+<script>
+// ==================== PANEL SWITCH ====================
+function switchPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const ids = ['why-oop','object-creation','constructor','object-header','string-pool','pass-by-value','call-stack'];
+  document.querySelectorAll('.nav-tab')[ids.indexOf(id)].classList.add('active');
+}
+
+// ==================== OBJECT CREATION ====================
+const ocSteps = [
+  {
+    info: '<strong>Start:</strong> Program load भयो। Main class Metaspace मा। Stack र Heap empty।',
+    infoClass: '',
+    stack: [],
+    heap: [],
+    meta: ['java.lang.Object', 'java.lang.String', 'Main.class ✓']
+  },
+  {
+    info: '<strong>Step 1:</strong> <code>main()</code> call → Stack Frame push। <code>Student s1</code> declare — reference null।',
+    infoClass: '',
+    stack: [{title:'main() frame', vars:'s1 = null (reference)\ns2 = null (reference)', cls:'active'}],
+    heap: [],
+    meta: ['java.lang.Object', 'java.lang.String', 'Main.class ✓']
+  },
+  {
+    info: '<strong>Step 2:</strong> <code>Student.class</code> पहिलो पटक देखियो — Class Loader ले load गर्छ। Metaspace मा Student bytecode आउँछ।',
+    infoClass: 'amber',
+    stack: [{title:'main() frame', vars:'s1 = null\ns2 = null', cls:'active'}],
+    heap: [],
+    meta: ['java.lang.Object', 'java.lang.String', 'Main.class ✓', 'Student.class ✓ (just loaded)']
+  },
+  {
+    info: '<strong>Step 3:</strong> <code>new Student()</code> → Heap मा memory allocate। Default values: id=0, name=null, age=0। Object @0xba तयार तर initialized छैन।',
+    infoClass: 'teal',
+    stack: [{title:'main() frame', vars:'s1 = null → assigning...\ns2 = null', cls:'active'}],
+    heap: [{title:'Student @0xba', vars:'id = 0\nname = null\nage = 0\ninstitute = null\naddress = null', cls:'heap-active'}],
+    meta: ['java.lang.Object', 'java.lang.String', 'Main.class ✓', 'Student.class ✓']
+  },
+  {
+    info: '<strong>Step 4:</strong> Default constructor चल्यो। <code>s1</code> ले @0xba को reference hold गर्छ। Object ready!',
+    infoClass: 'teal',
+    stack: [{title:'main() frame', vars:'s1 → @0xba ✓\ns2 = null', cls:'active'}],
+    heap: [{title:'Student @0xba', vars:'id = 0\nname = null\nage = 0\ninstitute = null\naddress = null\n(default values)', cls:'heap-active'}],
+    meta: ['java.lang.Object', 'java.lang.String', 'Main.class ✓', 'Student.class ✓']
+  },
+  {
+    info: '<strong>Step 5:</strong> <code>new Student()</code> फेरि → Heap मा अर्को object @0xc5। <code>s2 → @0xc5</code>। दुइटा छुट्टाछुट्टा objects — no conflict!',
+    infoClass: 'teal',
+    stack: [{title:'main() frame', vars:'s1 → @0xba ✓\ns2 → @0xc5 ✓', cls:'active'}],
+    heap: [
+      {title:'Student @0xba', vars:'id=0, name=null\nage=0 (s1 को)', cls:'heap-active'},
+      {title:'Student @0xc5', vars:'id=0, name=null\nage=0 (s2 को)', cls:'heap-active'}
+    ],
+    meta: ['java.lang.Object', 'java.lang.String', 'Main.class ✓', 'Student.class ✓']
+  },
+  {
+    info: '<strong>GC Note:</strong> Reference variable बिनाको Heap object = garbage। GC ले automatically collect गर्छ। <code>s3 = null</code> गर्यौ भने @0xba orphan → GC eligible।',
+    infoClass: '',
+    stack: [{title:'main() frame', vars:'s1 → @0xba\ns2 → @0xc5', cls:''}],
+    heap: [
+      {title:'Student @0xba', vars:'id=0, name=null\n← s1 points here', cls:''},
+      {title:'Student @0xc5', vars:'id=0, name=null\n← s2 points here', cls:''},
+      {title:'Student @0xbf ⚠', vars:'no reference!\n→ GC eligible', cls:''}
+    ],
+    meta: ['java.lang.Object', 'java.lang.String', 'Main.class ✓', 'Student.class ✓']
+  }
+];
+
+let ocCur = 0;
+function ocRender() {
+  const s = ocSteps[ocCur];
+  document.getElementById('oc-info').innerHTML = s.info;
+  document.getElementById('oc-info').className = 'info-box ' + (s.infoClass||'');
+
+  const stack = document.getElementById('oc-stack');
+  stack.innerHTML = s.stack.length ? '' : '<div class="empty-msg">— empty —</div>';
+  s.stack.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'mem-frame ' + (f.cls||'');
+    d.innerHTML = `<div class="frame-title">${f.title}</div><div class="frame-vars">${f.vars.replace(/→/g,'<span class="ref">→</span>').replace(/✓/g,'<span style="color:var(--teal)">✓</span>')}</div>`;
+    stack.appendChild(d);
+  });
+
+  const heap = document.getElementById('oc-heap');
+  heap.innerHTML = s.heap.length ? '' : '<div class="empty-msg">— empty —</div>';
+  s.heap.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'mem-frame ' + (f.cls||'');
+    d.innerHTML = `<div class="frame-title">${f.title}</div><div class="frame-vars">${f.vars}</div>`;
+    heap.appendChild(d);
+  });
+
+  const meta = document.getElementById('oc-meta');
+  meta.innerHTML = '';
+  s.meta.forEach(m => {
+    const d = document.createElement('div');
+    d.className = 'mem-frame ' + (m.includes('just loaded') ? 'meta-active' : '');
+    d.innerHTML = `<div class="frame-vars">${m}</div>`;
+    meta.appendChild(d);
+  });
+
+  renderDots('oc-steps', ocSteps.length, ocCur);
+  document.getElementById('oc-prev').disabled = ocCur === 0;
+  document.getElementById('oc-next').disabled = ocCur === ocSteps.length - 1;
+}
+function ocNext() { if(ocCur < ocSteps.length-1) { ocCur++; ocRender(); } }
+function ocPrev() { if(ocCur > 0) { ocCur--; ocRender(); } }
+function ocReset() { ocCur = 0; ocRender(); }
+
+// ==================== CONSTRUCTOR CHAIN ====================
+const chainSteps = [
+  { text: 'new Teacher(1) call → Teacher(int tid) constructor', active: 0 },
+  { text: 'Teacher(1) → this(1, "UNKNOWN") call', active: 1 },
+  { text: 'Teacher(1,"UNKNOWN") → this(1,"UNKNOWN","UNKNOWN") call', active: 2 },
+  { text: 'Teacher(1,"UNKNOWN","UNKNOWN") → this(1,"UNKNOWN","UNKNOWN",0) call', active: 3 },
+  { text: 'Final constructor → actual assignment: tid=1, name="UNKNOWN", dept="UNKNOWN", salary=0', active: 4 }
+];
+const chainDefs = [
+  'Teacher(int tid)',
+  'Teacher(int tid, String name)',
+  'Teacher(int tid, String name, String dept)',
+  'Teacher(int tid, String name, String dept, int salary) ← actual assignment'
+];
+
+let chainCur = -1;
+function chainRender() {
+  const viz = document.getElementById('chain-viz');
+  viz.innerHTML = '';
+  chainDefs.forEach((d, i) => {
+    const div = document.createElement('div');
+    div.className = 'chain-step' + (i <= chainCur ? ' active' : '');
+    div.innerHTML = `<span class="cs-arrow">${i < chainCur ? '✓' : i === chainCur ? '→' : '○'}</span><span class="cs-text">${d}</span>`;
+    viz.appendChild(div);
+  });
+
+  if(chainCur >= 0 && chainCur < chainSteps.length) {
+    document.getElementById('chain-info').innerHTML = chainSteps[chainCur].text;
+    document.getElementById('chain-info').className = 'info-box teal';
+  }
+  document.getElementById('chain-next').disabled = chainCur >= chainDefs.length - 1;
+}
+function chainNext() { if(chainCur < chainDefs.length-1) { chainCur++; chainRender(); } }
+function chainReset() { chainCur = -1; chainRender(); document.getElementById('chain-info').innerHTML = '"Next" थिचेर देख्नुस्...'; document.getElementById('chain-info').className = 'info-box teal'; }
+
+// ==================== PASS BY VALUE ====================
+const pbvSteps = [
+  {
+    info: '<strong>Primitive case:</strong> <code>addTen(x, y)</code> call — x=5, y=6 को VALUE copy भएर जान्छ।',
+    infoClass: '',
+    stack: [{title:'main() frame', vars:'x = 5\ny = 6', cls:'active'}],
+    heap: [],
+    insight: 'Primitive value copy → original unchanged'
+  },
+  {
+    info: '<strong>addTen frame push:</strong> x=5, y=6 को copy। main को x,y अलग, addTen को x,y अलग।',
+    infoClass: '',
+    stack: [
+      {title:'main() frame', vars:'x = 5 ← unchanged\ny = 6 ← unchanged', cls:''},
+      {title:'addTen() frame', vars:'x = 5 → 15 (local copy)\ny = 6 → 16 (local copy)', cls:'active'}
+    ],
+    heap: [],
+    insight: 'Stack मा दुइटा छुट्टाछुट्टा x, y → no relation'
+  },
+  {
+    info: '<strong>addTen returns:</strong> Frame pop। main को x=5, y=6 unchanged। Primitive = value copy।',
+    infoClass: 'teal',
+    stack: [{title:'main() frame', vars:'x = 5 ✓\ny = 6 ✓', cls:'active'}],
+    heap: [],
+    insight: 'Call By Value — original unchanged'
+  },
+  {
+    info: '<strong>Object case:</strong> <code>Random r1 = new Random(5,6)</code> — Heap मा object @1010।',
+    infoClass: 'amber',
+    stack: [{title:'main() frame', vars:'r1 → @heap#1010', cls:'active'}],
+    heap: [{title:'Random @1010', vars:'x = 5\ny = 6', cls:'heap-active'}],
+    insight: 'r1 holds address @1010, not the object itself'
+  },
+  {
+    info: '<strong>addTen(r1) call:</strong> r1 को VALUE (address @1010) copy भएर जान्छ। r र r1 दुवैले same Heap object point गर्छन्।',
+    infoClass: '',
+    stack: [
+      {title:'main() frame', vars:'r1 → @heap#1010', cls:''},
+      {title:'addTen() frame', vars:'r → @heap#1010 (copy of r1)', cls:'active'}
+    ],
+    heap: [{title:'Random @1010', vars:'x = 5\ny = 6\n← both r1 and r point here', cls:'heap-active'}],
+    insight: 'Reference copy — same Heap object'
+  },
+  {
+    info: '<strong>r.x += 10 → Heap @1010 modify:</strong> r ले @1010 मा जान्छ र x, y update गर्छ।',
+    infoClass: 'amber',
+    stack: [
+      {title:'main() frame', vars:'r1 → @heap#1010', cls:''},
+      {title:'addTen() frame', vars:'r → @heap#1010\nr.x += 10\nr.y += 10', cls:'active'}
+    ],
+    heap: [{title:'Random @1010', vars:'x = 15 ← modified!\ny = 16 ← modified!', cls:'heap-active'}],
+    insight: 'Heap object modified via reference copy'
+  },
+  {
+    info: '<strong>addTen returns:</strong> Frame pop। r destroy। तर Heap @1010 modified नै छ। r1.x = 15 now।',
+    infoClass: 'teal',
+    stack: [{title:'main() frame', vars:'r1 → @heap#1010', cls:'active'}],
+    heap: [{title:'Random @1010', vars:'x = 15 ✓\ny = 16 ✓', cls:'heap-active'}],
+    insight: '"Call by reference feel" — but it\'s reference COPY, not direct memory passing'
+  }
+];
+
+let pbvCur = 0;
+function pbvRender() {
+  const s = pbvSteps[pbvCur];
+  document.getElementById('pbv-info').innerHTML = s.info;
+  document.getElementById('pbv-info').className = 'info-box ' + (s.infoClass||'');
+
+  renderMem('pbv-stack', s.stack, true);
+  renderMem('pbv-heap', s.heap, false);
+
+  const ins = document.getElementById('pbv-insight');
+  ins.innerHTML = `<div class="mem-frame meta-active"><div class="frame-vars">${s.insight}</div></div>`;
+
+  renderDots('pbv-steps', pbvSteps.length, pbvCur);
+  document.getElementById('pbv-prev').disabled = pbvCur === 0;
+  document.getElementById('pbv-next').disabled = pbvCur === pbvSteps.length - 1;
+}
+function pbvNext() { if(pbvCur < pbvSteps.length-1){ pbvCur++; pbvRender(); } }
+function pbvPrev() { if(pbvCur > 0){ pbvCur--; pbvRender(); } }
+function pbvReset() { pbvCur = 0; pbvRender(); }
+
+// ==================== CALL STACK ====================
+const csSteps = [
+  {
+    info: '<strong>Start:</strong> <code>main()</code> push। Student load। Heap empty।',
+    infoClass: '',
+    stack: [{title:'main() frame', vars:'args = []\ns1 = ?', cls:'active'}],
+    heap: [],
+    trace: []
+  },
+  {
+    info: '<strong>new Student("Rupesh",25):</strong> Heap मा Student @1000। s1 → @1000।',
+    infoClass: 'teal',
+    stack: [{title:'main() frame', vars:'args = []\ns1 → @heap#1000', cls:'active'}],
+    heap: [{title:'Student @1000', vars:'name = "Rupesh" (@SP)\nage = 25', cls:'heap-active'}],
+    trace: []
+  },
+  {
+    info: '<strong>printInfo(s1) call:</strong> नयाँ frame push। s → @1000 (reference copy)। main() pause।',
+    infoClass: '',
+    stack: [
+      {title:'main() frame', vars:'s1 → @1000 (paused)', cls:''},
+      {title:'printInfo() frame', vars:'s → @1000\nreturn addr: main', cls:'active'}
+    ],
+    heap: [{title:'Student @1000', vars:'name="Rupesh"\nage=25', cls:'heap-active'}],
+    trace: ['at Main.main(Main.java:3)']
+  },
+  {
+    info: '<strong>formatName(s.name) call:</strong> अर्को frame। name = @SP001 ("Rupesh" Pool address copy)।',
+    infoClass: '',
+    stack: [
+      {title:'main() frame', vars:'s1 → @1000 (paused)', cls:''},
+      {title:'printInfo() frame', vars:'s → @1000 (paused)\nreturn addr: main', cls:''},
+      {title:'formatName() frame', vars:'name → @SP001\nreturn addr: printInfo', cls:'active'}
+    ],
+    heap: [{title:'Student @1000', vars:'name="Rupesh"\nage=25', cls:''}],
+    trace: ['at Main.printInfo(Main.java:7)', 'at Main.main(Main.java:3)']
+  },
+  {
+    info: '<strong>"Name: " + name:</strong> StringBuilder internally। नयाँ String "Name: Rupesh" Heap @H102 मा बन्छ।',
+    infoClass: 'amber',
+    stack: [
+      {title:'main() frame', vars:'s1 → @1000', cls:''},
+      {title:'printInfo() frame', vars:'s → @1000', cls:''},
+      {title:'formatName() frame', vars:'name → @SP001\nreturn → @H102', cls:'active'}
+    ],
+    heap: [
+      {title:'Student @1000', vars:'name="Rupesh"', cls:''},
+      {title:'String @H102', vars:'"Name: Rupesh"\n(concat result)', cls:'heap-active'}
+    ],
+    trace: ['at Main.formatName(Main.java:11)', 'at Main.printInfo(Main.java:7)', 'at Main.main(Main.java:3)']
+  },
+  {
+    info: '<strong>formatName() returns @H102 → pop!</strong> Frame destroy। printInfo() resume। msg → @H102।',
+    infoClass: 'teal',
+    stack: [
+      {title:'main() frame', vars:'s1 → @1000', cls:''},
+      {title:'printInfo() frame', vars:'s → @1000\nmsg → @H102', cls:'active'}
+    ],
+    heap: [
+      {title:'Student @1000', vars:'name="Rupesh"', cls:''},
+      {title:'String @H102', vars:'"Name: Rupesh"', cls:'heap-active'}
+    ],
+    trace: ['at Main.printInfo(Main.java:8)', 'at Main.main(Main.java:3)']
+  },
+  {
+    info: '<strong>println() call chain:</strong> PrintStream → OutputStreamWriter → StreamEncoder — सबैको frame बन्छ! Stack Trace यही भएर लामो हुन्छ।',
+    infoClass: '',
+    stack: [
+      {title:'main() frame', vars:'s1 → @1000', cls:''},
+      {title:'printInfo() frame', vars:'s → @1000', cls:''},
+      {title:'println() frame', vars:'StreamEncoder...', cls:'active'}
+    ],
+    heap: [{title:'String @H102', vars:'"Name: Rupesh"', cls:'heap-active'}],
+    trace: ['at StreamEncoder.write(:80)', 'at OutputStreamWriter.write(:207)', 'at PrintStream.println(:844)', 'at Main.printInfo(Main.java:8)', 'at Main.main(Main.java:3)']
+  },
+  {
+    info: '<strong>All complete:</strong> সबै frames pop। Stack empty। Program ends। GC ले Heap clean गर्छ।',
+    infoClass: 'teal',
+    stack: [],
+    heap: [],
+    trace: ['Stack Trace = exception आउँदा', 'Call Stack को snapshot हो', 'तल main() देखि माथि crash line सम्म']
+  }
+];
+
+let csCur = 0;
+function csRender() {
+  const s = csSteps[csCur];
+  document.getElementById('cs-info').innerHTML = s.info;
+  document.getElementById('cs-info').className = 'info-box ' + (s.infoClass||'');
+
+  renderMem('cs-stack', s.stack, true);
+  renderMem('cs-heap', s.heap, false);
+
+  const trace = document.getElementById('cs-trace');
+  if(s.trace.length) {
+    trace.innerHTML = s.trace.map(t => `<div style="color:${t.includes('Main.')?'var(--teal)':'var(--text3)'};padding:2px 0">${t}</div>`).join('');
+  } else {
+    trace.innerHTML = '<div class="empty-msg">—</div>';
+  }
+
+  renderDots('cs-steps', csSteps.length, csCur);
+  document.getElementById('cs-prev').disabled = csCur === 0;
+  document.getElementById('cs-next').disabled = csCur === csSteps.length - 1;
+}
+function csNext() { if(csCur < csSteps.length-1){ csCur++; csRender(); } }
+function csPrev() { if(csCur > 0){ csCur--; csRender(); } }
+function csReset() { csCur = 0; csRender(); }
+
+// ==================== HELPERS ====================
+function renderMem(id, frames, reverse) {
+  const el = document.getElementById(id);
+  el.innerHTML = frames.length ? '' : '<div class="empty-msg">— empty —</div>';
+  const arr = reverse ? [...frames].reverse() : frames;
+  arr.forEach(f => {
+    const d = document.createElement('div');
+    d.className = 'mem-frame ' + (f.cls||'');
+    d.innerHTML = `<div class="frame-title">${f.title}</div><div class="frame-vars">${f.vars.replace(/→/g,'<span class="ref">→</span>').replace(/✓/g,'<span style="color:var(--teal)">✓</span>').replace(/⚠/g,'<span style="color:var(--amber)">⚠</span>')}</div>`;
+    el.appendChild(d);
+  });
+}
+
+function renderDots(id, total, cur) {
+  const bar = document.getElementById(id);
+  bar.innerHTML = '';
+  for(let i=0; i<total; i++) {
+    const d = document.createElement('div');
+    d.className = 'step-dot' + (i===cur?' active':i<cur?' done':'');
+    d.textContent = i+1;
+    const ic = i;
+    d.onclick = () => { 
+      if(id==='oc-steps') { ocCur=ic; ocRender(); }
+      if(id==='pbv-steps') { pbvCur=ic; pbvRender(); }
+      if(id==='cs-steps') { csCur=ic; csRender(); }
+    };
+    bar.appendChild(d);
+  }
+}
+
+// ==================== INIT ====================
+ocRender();
+chainRender();
+pbvRender();
+csRender();
+</script>
+</body>
+</html>

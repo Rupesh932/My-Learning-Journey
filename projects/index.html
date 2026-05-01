@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLJ — My Learning Journey</title>
+<link rel="stylesheet" href="./web-engine/css/global.css">
+</head>
+<body>
+
+<div class="mlj-app">
+
+  <!-- ══ TOPBAR ══ -->
+  <header class="mlj-topbar">
+    <div class="flex gap-sm" style="align-items:center">
+      <button id="mobile-menu" class="theme-toggle" style="display:none" aria-label="Menu">☰</button>
+      <span class="logo" onclick="MLJ.navigate('dashboard')" style="cursor:pointer">
+        <span class="logo-dot"></span>
+        MLJ<span style="color:var(--text3);font-weight:400;font-size:.9rem"> // Rupesh</span>
+      </span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-status">
+        <span class="status-dot"></span>
+        <span id="topbar-stat">loading...</span>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" title="Toggle theme">☾</button>
+    </div>
+  </header>
+
+  <!-- ══ SIDEBAR ══ -->
+  <nav class="mlj-sidebar" id="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Overview</div>
+      <button class="nav-item active" data-page="dashboard" onclick="MLJ.navigate('dashboard')">
+        <span class="nav-icon" style="background:rgba(96,165,250,.1);color:#60a5fa">◈</span>
+        Dashboard
+      </button>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Languages</div>
+      <button class="nav-item" data-page="java" onclick="MLJ.navigate('java')">
+        <span class="nav-icon" style="background:rgba(248,152,32,.1);color:#f89820">☕</span>
+        Java
+        <span class="nav-badge" id="badge-java" style="background:rgba(248,152,32,.1);color:#f89820">—</span>
+      </button>
+      <button class="nav-item" data-page="js" onclick="MLJ.navigate('js')">
+        <span class="nav-icon" style="background:rgba(247,223,30,.1);color:#c8b800">⚡</span>
+        JavaScript
+        <span class="nav-badge" id="badge-js" style="background:rgba(247,223,30,.1);color:#c8b800">—</span>
+      </button>
+      <button class="nav-item" data-page="cpp" onclick="MLJ.navigate('cpp')">
+        <span class="nav-icon" style="background:rgba(0,89,156,.1);color:#5090d0">⚙</span>
+        C++
+        <span class="nav-badge" id="badge-cpp" style="background:rgba(0,89,156,.1);color:#5090d0">—</span>
+      </button>
+      <button class="nav-item" data-page="dsa" onclick="MLJ.navigate('dsa')">
+        <span class="nav-icon" style="background:rgba(168,85,247,.1);color:#a855f7">🌳</span>
+        DSA
+        <span class="nav-badge" id="badge-dsa" style="background:rgba(168,85,247,.1);color:#a855f7">—</span>
+      </button>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Work</div>
+      <button class="nav-item" data-page="projects" onclick="MLJ.navigate('projects')">
+        <span class="nav-icon" style="background:rgba(255,107,107,.1);color:#ff6b6b">🚀</span>
+        Projects
+      </button>
+      <button class="nav-item" data-page="notes" onclick="MLJ.navigate('notes')">
+        <span class="nav-icon" style="background:rgba(45,212,160,.1);color:#2dd4a0">📐</span>
+        Notes & Drawings
+      </button>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Track</div>
+      <button class="nav-item" data-page="progress" onclick="MLJ.navigate('progress')">
+        <span class="nav-icon" style="background:rgba(96,165,250,.1);color:#60a5fa">📊</span>
+        Progress
+      </button>
+    </div>
+    <div class="sidebar-footer">
+      <div style="font-weight:600">Rupesh Thapaliya</div>
+      <div class="mt-sm text-muted">Sushasan-X builder 🚀</div>
+      <div class="mt-sm text-muted" id="sidebar-date"></div>
+    </div>
+  </nav>
+
+  <!-- ══ CONTENT ══ -->
+  <main class="mlj-content" id="mlj-content">
+    <div style="display:flex;align-items:center;justify-content:center;height:60vh;color:var(--text3);font-size:.85rem">
+      Loading your journey...
+    </div>
+  </main>
+
+</div>
+
+<script src="./web-engine/js/dashboard.js"></script>
+<script src="./web-engine/js/router.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => { MLJ.init(); });
+</script>
+</body>
+</html>
