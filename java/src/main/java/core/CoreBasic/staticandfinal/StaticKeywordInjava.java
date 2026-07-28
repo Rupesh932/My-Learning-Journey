@@ -13,27 +13,27 @@ public class StaticKeywordInjava {
 
     public static void main(String[] args) {
         Student hari = new Student("Hari", 110, Student.ClusterType.NORMAL, 71, 65.43, 5);
-        Student.markAttendence(110);
+        Student.markAttendance(110);
         System.out.println(hari.toString());
 
         Student pukar = new Student("Pukar", 111, Student.ClusterType.INNOVATION, 55, 67.6, 4);
-        Student.markAttendence(111);
+        Student.markAttendance(111);
         System.out.println(pukar.toString());
 
         Student dhana = new Student("Dhanaraj", 112, ClusterType.REFERENCE, 61, 73.2, 3);
-        Student.markAttendence(112);
+        Student.markAttendance(112);
         System.out.println(dhana.toString());
 
         Student raju = new Student("Raju", 113, ClusterType.UNDERPRIVILEGED, 72, 71.32, 4);
-        Student.markAttendence(113);
+        Student.markAttendance(113);
         System.out.println(raju.toString());
 
         Student mohan = new Student("Mohan", 114, ClusterType.SPORTS, 53, 66.7, 1);
-        Student.markAttendence(114);
+        Student.markAttendance(114);
         System.out.println(mohan.toString());
 
         Student kanxi= new Student("Rabina", 115, ClusterType.UNDERPRIVILEGED, 90, 71.32, 4);
-         Student.markAttendence(115);
+         Student.markAttendance(115);
         System.out.println(kanxi.toString());
     }
 }
@@ -56,17 +56,17 @@ class Student {
         NORMAL, UNDERPRIVILEGED, SPORTS, COLLEGE_TOPPER, CLASS_TOPPER, INNOVATION, REFERENCE, NOMINATED
     }
 
-    Student(String name, int rollNo, ClusterType initialCluster, int attendence, double markPercentage,
+    Student(String name, int rollNo, ClusterType initialCluster, int attendance, double markPercentage,
             int innovationRating) {
         System.out.println("student " + name + " is constructing");
         this.name = name;
         this.rollNo = rollNo;
-        this.scholarship = new Scholarship(initialCluster, attendence, markPercentage, false, innovationRating);
+        this.scholarship = new Scholarship(initialCluster, attendance, markPercentage, false, innovationRating);
         count++;
         System.out.println(count + " student has been created ");
     }
 
-    public static void markAttendence(int rollNo) {
+    public static void markAttendance(int rollNo) {
         System.out.println("RollNo: " + rollNo + " has attendence entry successful");
     }
 
@@ -80,16 +80,16 @@ class Student {
     static class Scholarship {
         boolean isScholared;
         ClusterType currentCluster;
-        int attendence;
+        int attendance;
         double markPercentage;
         int innovationRating;
         double scholarAmount ;
        
 
-        Scholarship(ClusterType currentCluster, int attendence, double markPercentage, boolean isScholared,
+        Scholarship(ClusterType currentCluster, int attendance, double markPercentage, boolean isScholared,
                 int innovationRating) {
             this.currentCluster = currentCluster;
-            this.attendence = attendence;
+            this.attendance = attendance;
             this.markPercentage = markPercentage;
             this.isScholared = isScholared;
             this.innovationRating = innovationRating;
@@ -98,15 +98,15 @@ class Student {
         }
           
 
-        boolean isElligible() {
+        boolean isEligible() {
             if (isScholared) {
                 return false;
             }
-            return (currentCluster != ClusterType.NORMAL && attendence >= 60 && markPercentage >= 50);
+            return (currentCluster != ClusterType.NORMAL && attendance >= 60 && markPercentage >= 50);
         }
 
         double calculateScholarShip() {
-            if (!isElligible()) {
+            if (!isEligible()) {
                 return 0.0;
             }
            double amount = switch (currentCluster) {
@@ -164,7 +164,7 @@ class Student {
         @Override
         public String toString() {
             return "Scholarship [isScholared=" + isScholared + ", currentCluster=" + currentCluster + ", attendence="
-                    + attendence + ", markPercentage=" + markPercentage + ", innovationRating=" + innovationRating
+                    + attendance + ", markPercentage=" + markPercentage + ", innovationRating=" + innovationRating
                     + ", scholarAmount=" + scholarAmount + "]";
         }
 

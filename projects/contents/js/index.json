@@ -1,0 +1,17 @@
+{
+    "language":"JavaScript",
+    "color":"#f7df1e",
+    "icon" : "⚡",
+    "topics":[
+        {
+            "id" : "js-hof",
+            "name":"Higher Order Function",
+            "status":"learning",
+            "lab": "js-labs.html",
+            "labSection": "hof-visualizer",
+            "notes": ["../../assets/image/js/hof_callback_logic.svg"],
+            "tags": ["foreach","map", "filter", "reduce", "callback"]
+    }
+        
+    ]
+}
